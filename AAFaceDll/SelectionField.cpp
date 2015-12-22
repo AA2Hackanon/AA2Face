@@ -11,7 +11,7 @@ namespace {
 }
 
 void __cdecl InitSelector(HWND parent, HINSTANCE hInst) {
-	DWORD x = 250, y = 320,xw = 200,yw = 600;
+	DWORD x = 250, y = 420,xw = 200,yw = 600;
 	g_cbSelector = CreateWindowExW(WS_EX_CLIENTEDGE,L"COMBOBOX",L"None",
 		CBS_DROPDOWN | CBS_HASSTRINGS | WS_CHILD | WS_VISIBLE | WS_VSCROLL ,x,y,xw,yw,
 		parent,0,hInst,0);
