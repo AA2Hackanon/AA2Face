@@ -134,10 +134,10 @@
     <Text Include="items.txt" />
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="constructor.asm">
+    <MASM Include="face.asm">
       <FileType>Document</FileType>
     </MASM>
-    <MASM Include="refresh.asm" />
+    <MASM Include="hair.asm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -48,10 +48,10 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="constructor.asm">
+    <MASM Include="face.asm">
       <Filter>Source Files\injections</Filter>
     </MASM>
-    <MASM Include="refresh.asm">
+    <MASM Include="hair.asm">
       <Filter>Source Files\injections</Filter>
     </MASM>
   </ItemGroup>

@@ -8,11 +8,12 @@ BOOL WINAPI DllMain(
 	_In_ LPVOID    lpvReserved
 	)
 {
-	g_AA2Base = (DWORD)GetModuleHandle("AA2Edit.exe");
+	ExternInit();
 	//change calls in code to ours
-	HookDialogCreationProcParam();
-	HookDialogCreation();
-	HookFaceChoose();
-	HookFaceLoad();
+	HookFace();
+
+	HookHair();
+
+	//HookTEMPTEST();
 	return TRUE;
 }
