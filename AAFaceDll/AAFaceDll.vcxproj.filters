@@ -13,46 +13,148 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\injections">
+    <Filter Include="Header Files\Utils">
+      <UniqueIdentifier>{a0e81b0e-86c9-462c-80a9-a2cdb2dd03ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Utils">
+      <UniqueIdentifier>{9ecaff6c-d43a-4573-accd-f5d3f1301acb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Injections">
+      <UniqueIdentifier>{29bd639a-d253-4aa6-9d03-b8d574a0a4cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\asm">
       <UniqueIdentifier>{1135279d-ae80-4f84-9bda-bb44f7b12b75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Injections">
+      <UniqueIdentifier>{0b72c6ca-203b-4bd0-b38a-32e99d742f89}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\configs">
+      <UniqueIdentifier>{3ff31ffd-ceb7-442d-ac61-40fa30336d37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ExternClasses">
+      <UniqueIdentifier>{eabcbe74-921d-4d93-a79c-5e4a6e7bebf4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SelectionField.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ExternConstants.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Injections.cpp">
+    <ClCompile Include="Hooks.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Config.cpp">
+      <Filter>Source Files\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Logger.cpp">
+      <Filter>Source Files\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="InjFace.cpp">
+      <Filter>Source Files\Injections</Filter>
+    </ClCompile>
+    <ClCompile Include="InjGeneral.cpp">
+      <Filter>Source Files\Injections</Filter>
+    </ClCompile>
+    <ClCompile Include="InjHair.cpp">
+      <Filter>Source Files\Injections</Filter>
+    </ClCompile>
+    <ClCompile Include="Injections.cpp">
+      <Filter>Source Files\Injections</Filter>
+    </ClCompile>
+    <ClCompile Include="InjFacedetails.cpp">
+      <Filter>Source Files\Injections</Filter>
+    </ClCompile>
+    <ClCompile Include="GenUtils.cpp">
+      <Filter>Source Files\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="HairDialogClass.cpp">
+      <Filter>Source Files\ExternClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="FacedetailsDialogClass.cpp">
+      <Filter>Source Files\ExternClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="BodycolorDialogClass.cpp">
+      <Filter>Source Files\ExternClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseDialogClass.cpp">
+      <Filter>Source Files\ExternClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="InjBodycolor.cpp">
+      <Filter>Source Files\Injections</Filter>
+    </ClCompile>
+    <ClCompile Include="InjSystem.cpp">
+      <Filter>Source Files\Injections</Filter>
+    </ClCompile>
+    <ClCompile Include="FaceDialogClass.cpp">
+      <Filter>Source Files\ExternClasses</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SelectionField.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ExternConstants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Injections.h">
+    <ClInclude Include="Hooks.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Config.h">
+      <Filter>Header Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Logger.h">
+      <Filter>Header Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Injections.h">
+      <Filter>Header Files\Injections</Filter>
+    </ClInclude>
+    <ClInclude Include="InjFace.h">
+      <Filter>Header Files\Injections</Filter>
+    </ClInclude>
+    <ClInclude Include="InjGeneral.h">
+      <Filter>Header Files\Injections</Filter>
+    </ClInclude>
+    <ClInclude Include="InjHair.h">
+      <Filter>Header Files\Injections</Filter>
+    </ClInclude>
+    <ClInclude Include="InjFacedetails.h">
+      <Filter>Header Files\Injections</Filter>
+    </ClInclude>
+    <ClInclude Include="GenUtils.h">
+      <Filter>Header Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="InjBodycolor.h">
+      <Filter>Header Files\Injections</Filter>
+    </ClInclude>
+    <ClInclude Include="InjSystem.h">
+      <Filter>Header Files\Injections</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <Text Include="config.txt">
+      <Filter>Source Files\configs</Filter>
+    </Text>
     <Text Include="items.txt">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\configs</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="constructor.asm">
-      <Filter>Source Files\injections</Filter>
+    <MASM Include="face.asm">
+      <Filter>Source Files\asm</Filter>
     </MASM>
-    <MASM Include="refresh.asm">
-      <Filter>Source Files\injections</Filter>
+    <MASM Include="hair.asm">
+      <Filter>Source Files\asm</Filter>
+    </MASM>
+    <MASM Include="general.asm">
+      <Filter>Source Files\asm</Filter>
+    </MASM>
+    <MASM Include="facedetails.asm">
+      <Filter>Source Files\asm</Filter>
+    </MASM>
+    <MASM Include="bodycolor.asm">
+      <Filter>Source Files\asm</Filter>
+    </MASM>
+    <MASM Include="system.asm">
+      <Filter>Source Files\asm</Filter>
     </MASM>
   </ItemGroup>
 </Project>

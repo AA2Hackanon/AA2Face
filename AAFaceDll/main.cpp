@@ -1,5 +1,7 @@
 #include <Windows.h>
+#include "Config.h"
 #include "ExternConstants.h"
+#include "Hooks.h"
 #include "Injections.h"
 
 BOOL WINAPI DllMain(
@@ -8,11 +10,31 @@ BOOL WINAPI DllMain(
 	_In_ LPVOID    lpvReserved
 	)
 {
-	g_AA2Base = (DWORD)GetModuleHandle("AA2Edit.exe");
-	//change calls in code to ours
-	HookDialogCreationProcParam();
-	HookDialogCreation();
-	HookFaceChoose();
-	HookFaceLoad();
-	return TRUE;
+	if(fdwReason == DLL_PROCESS_ATTACH) {
+		ExternInit();
+		InjectionsInit();
+		//change calls in code to ours
+
+		if(!g_config.GetDisabledGeneral()) {
+			HookGeneral();
+		}
+		if(!g_config.GetDisabledFace()) {
+			HookFace();
+		}
+		if(!g_config.GetDisabledHair()) {
+			HookHair();
+		}
+		if(!g_config.GetDisabledGlasses()) {
+			HookFacedetails();
+		}
+		if(!g_config.GetDisabledBodycolor()) {
+			HookBodycolor();
+		}
+		
+		
+		//HookSystem();
+		//HookHairMaxAmount();
+		//HookTEMPTEST();
+		return TRUE;
+	}
 }

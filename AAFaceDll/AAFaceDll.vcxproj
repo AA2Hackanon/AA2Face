@@ -120,24 +120,52 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BaseDialogClass.cpp" />
+    <ClCompile Include="BodycolorDialogClass.cpp" />
+    <ClCompile Include="Config.cpp" />
     <ClCompile Include="ExternConstants.cpp" />
+    <ClCompile Include="FacedetailsDialogClass.cpp" />
+    <ClCompile Include="FaceDialogClass.cpp" />
+    <ClCompile Include="GenUtils.cpp" />
+    <ClCompile Include="HairDialogClass.cpp" />
+    <ClCompile Include="InjBodycolor.cpp" />
     <ClCompile Include="Injections.cpp" />
+    <ClCompile Include="InjFace.cpp" />
+    <ClCompile Include="InjFacedetails.cpp" />
+    <ClCompile Include="InjHair.cpp" />
+    <ClCompile Include="Hooks.cpp" />
+    <ClCompile Include="InjSystem.cpp" />
+    <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="SelectionField.cpp" />
+    <ClCompile Include="InjGeneral.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Config.h" />
     <ClInclude Include="ExternConstants.h" />
+    <ClInclude Include="GenUtils.h" />
+    <ClInclude Include="Hooks.h" />
+    <ClInclude Include="InjBodycolor.h" />
+    <ClInclude Include="InjFace.h" />
+    <ClInclude Include="InjGeneral.h" />
+    <ClInclude Include="InjFacedetails.h" />
+    <ClInclude Include="InjHair.h" />
+    <ClInclude Include="InjSystem.h" />
+    <ClInclude Include="Logger.h" />
     <ClInclude Include="Injections.h" />
-    <ClInclude Include="SelectionField.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="config.txt" />
     <Text Include="items.txt" />
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="constructor.asm">
+    <MASM Include="bodycolor.asm" />
+    <MASM Include="face.asm">
       <FileType>Document</FileType>
     </MASM>
-    <MASM Include="refresh.asm" />
+    <MASM Include="facedetails.asm" />
+    <MASM Include="general.asm" />
+    <MASM Include="hair.asm" />
+    <MASM Include="system.asm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
