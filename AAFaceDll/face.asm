@@ -1,21 +1,25 @@
 .386
-.model flat, stdcall
+.model flat, c
 
 EXTERN g_AA2Base:DWORD
 
-EXTERN GetSelectorIndex:PROC
+EXTERN GetFaceSelectorIndex:PROC
 EXTERN LoadFace:PROC
-EXTERN InitSelector:PROC
-EXTERN DialogNotification:PROC
+EXTERN InitFaceSelector:PROC
+EXTERN FaceDialogNotification:PROC
+EXTERN FaceDialogAfterInit:PROC
 
 EXTERNDEF facedialog_refresh_face_inject:PROC
 EXTERNDEF facedialog_load_face_inject:PROC
 EXTERNDEF facedialog_hooked_dialog_proc:PROC
 EXTERNDEF facedialog_constructor_inject:PROC
+EXTERNDEF facedialog_hooked_dialog_proc_afterinit:PROC
+
 .data
 	hInstTmp DWORD 0
 	returnAddress DWORD 0
 .code
+
 
 ;mov al,[edx+0000046A] would load the face.
 ;AA2Edit.exe+223D1 - 8A 82 6A040000        - mov al,[edx+0000046A]
@@ -46,7 +50,7 @@ facedialog_refresh_face_inject:
 	add eax, 174A0h
 	call eax
 	push eax ; save return value for now
-	call GetSelectorIndex
+	call GetFaceSelectorIndex
 	cmp eax, -1
 	jne skipSelection ; if not -1, use this value
 					  ; else, use original value from stack
@@ -72,7 +76,7 @@ facedialog_hooked_dialog_proc:
 	push [esp+18h]
 	push [esp+18h]
 	push ecx
-	call DialogNotification
+	call FaceDialogNotification
 	add esp, 14h ; cdecl
 	pop ecx ; restore this
 	;remember that we had instructions to do (i think ret doesnt alter flags)
@@ -97,11 +101,28 @@ facedialog_constructor_inject:
 	push eax ; rescue the hwnd that is returned by the createDialog call
 	push dword ptr [hInstTmp]
 	push eax 
-	call InitSelector
+	call InitFaceSelector
 	add esp, 8 ; its cdecl,as stdcall has namemangling
 	pop eax ; pop the saved hwnd
 
 	push [returnAddress] ; dont forget this one
 	ret
 
+
+;AA2Edit.exe+22429 - 51                    - push ecx
+;AA2Edit.exe+2242A - E8 81FDFFFF           - call AA2Edit.exe+221B0
+facedialog_hooked_dialog_proc_afterinit:
+	mov eax, [esp+0Ch]
+	push eax ; hwnd parameter for later
+	push ecx ; save this
+	push ecx ; parameter
+	mov eax, [g_AA2Base]
+	add eax, 221B0h
+	call eax
+	; eax = hwnd still on stack
+	;ecx = this still on stack
+	call FaceDialogAfterInit
+	add esp, 8
+
+	ret 4
 END

@@ -1,5 +1,7 @@
 #include <Windows.h>
+#include "Config.h"
 #include "ExternConstants.h"
+#include "Hooks.h"
 #include "Injections.h"
 
 BOOL WINAPI DllMain(
@@ -8,12 +10,31 @@ BOOL WINAPI DllMain(
 	_In_ LPVOID    lpvReserved
 	)
 {
-	ExternInit();
-	//change calls in code to ours
-	HookFace();
+	if(fdwReason == DLL_PROCESS_ATTACH) {
+		ExternInit();
+		InjectionsInit();
+		//change calls in code to ours
 
-	HookHair();
-
-	//HookTEMPTEST();
-	return TRUE;
+		if(!g_config.GetDisabledGeneral()) {
+			HookGeneral();
+		}
+		if(!g_config.GetDisabledFace()) {
+			HookFace();
+		}
+		if(!g_config.GetDisabledHair()) {
+			HookHair();
+		}
+		if(!g_config.GetDisabledGlasses()) {
+			HookFacedetails();
+		}
+		if(!g_config.GetDisabledBodycolor()) {
+			HookBodycolor();
+		}
+		
+		
+		//HookSystem();
+		//HookHairMaxAmount();
+		//HookTEMPTEST();
+		return TRUE;
+	}
 }

@@ -3,15 +3,20 @@
 
 EXTERN g_AA2Base:DWORD
 
+EXTERN g_HairDialogProcReturnValue:DWORD
 EXTERN GetHairSelectorIndex:PROC
 EXTERN InitHairTab:PROC
 EXTERN InitHairSelector:PROC
 EXTERN HairDialogNotification:PROC
+EXTERN HairDialogAfterInit:PROC
+EXTERN InvalidHairNotifier:PROC
 
 EXTERNDEF hairdialog_refresh_hair_inject:PROC
 EXTERNDEF hairdialog_init_hair_inject:PROC
 EXTERNDEF hairdialog_constructor_inject:PROC
 EXTERNDEF hairdialog_hooked_dialog_proc:PROC
+EXTERNDEF hairdialog_hooked_dialog_proc_afterinit:PROC
+EXTERNDEF hairdialog_invalid_hair_loaded:PROC
 
 .data
 	hInstTmp DWORD 0
@@ -100,10 +105,45 @@ hairdialog_hooked_dialog_proc:
 	call HairDialogNotification
 	add esp, 14h ; cdecl
 	pop ecx ; restore this
+	cmp eax, 0
+	je hairdialog_hooked_dialog_proc_exec_native
+	;abort proc, return g_HairDialogProcReturnValue
+	add esp, 4 ; get rid of our return point, so that ret will exit our hooked function
+	mov eax, [g_HairDialogProcReturnValue]
+	ret 10h ; we are now returning from (HWND, UMSG, WPARAM, LPARAM) and have to clear the parameters accordingly (stdcall)
+  hairdialog_hooked_dialog_proc_exec_native:
 	;remember that we had instructions to do (i think ret doesnt alter flags)
 	mov eax, [esp+0Ch] ; thats C now
 	;now we need to push esi, but the return value is in the way. shit.
-	push [esp] ; duplicate return value
-	mov [esp+4], esi ; "push" esi below our return value
+	push [esp] ; duplicate return point
+	mov [esp+4], esi ; "push" esi below our return point
+	ret
+
+
+;function that handles WM_INITDIALOG
+;AA2Edit.exe+28674 - E8 97F8FFFF           - call AA2Edit.exe+27F10 <-- no parameters, but esi-thiscall (esi=edi=this)
+;AA2Edit.exe+28679 - 5F                    - pop edi
+;AA2Edit.exe+2867A - 33 C0                 - xor eax,eax
+;AA2Edit.exe+2867C - 5E                    - pop esi
+;AA2Edit.exe+2867D - C2 1000               - ret 0010
+hairdialog_hooked_dialog_proc_afterinit:
+	mov eax, [g_AA2Base]
+	add eax, 27F10h
+	call eax
+	push esi
+	call HairDialogAfterInit
+	add esp, 4
+	ret
+
+;i hope this only gets lead to if a hair is invalid. we get injecetd in F8
+;AA2Edit.exe+119CF2 - 74 0C                 - je AA2Edit.exe+119D00
+;AA2Edit.exe+119CF4 - 8B 4C 24 1C           - mov ecx,[esp+1C]
+;AA2Edit.exe+119CF8 - C6 84 0E 5C020000 00  - mov byte ptr[esi+ecx+0000025C],00
+;AA2Edit.exe+119D00 - 33 D2                 - xor edx,edx
+hairdialog_invalid_hair_loaded:
+	pushad
+	call InvalidHairNotifier
+	popad
+	mov byte ptr [esi+ecx+25Ch], 00
 	ret
 END

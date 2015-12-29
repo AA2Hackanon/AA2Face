@@ -1,12 +1,12 @@
 #include <Windows.h>
 #include <Psapi.h>
 
-BOOL SetDebugPrevilege(HANDLE token,BOOL state) {
+int SetDebugPrevilege(HANDLE token,BOOL state) {
 	TOKEN_PRIVILEGES tp;
 	LUID luid;
 
 	if (!LookupPrivilegeValue(NULL,SE_DEBUG_NAME,&luid)) {
-		return FALSE;
+		return -1;
 	}
 
 	tp.PrivilegeCount = 1;
@@ -21,13 +21,13 @@ BOOL SetDebugPrevilege(HANDLE token,BOOL state) {
 		(PTOKEN_PRIVILEGES)NULL,(PDWORD)NULL);
 	DWORD lastError = GetLastError();
 	if (lastError == ERROR_NOT_ALL_ASSIGNED) {
-		return FALSE;
+		return 0;
 	}
 	else if (!adjSuccess) {
-		return FALSE;
+		return -1;
 	}
 
-	return TRUE;
+	return 1;
 }
 
 BOOL GetDebugAdjustToken(HANDLE* token) {
@@ -51,11 +51,19 @@ int CALLBACK WinMain(
 	)
 {
 	HANDLE token;
-	BOOL privSuc = GetDebugAdjustToken(&token);
-	privSuc &= SetDebugPrevilege(token,TRUE);
+	int privSuc = GetDebugAdjustToken(&token);
 	if(privSuc == FALSE) {
 		MessageBox(NULL,"Could not get rights","Error",MB_ICONERROR);
 		return 0;
+	}
+	privSuc &= SetDebugPrevilege(token,TRUE);
+	if(privSuc == -1) {
+		MessageBox(NULL,"Could not get rights","Error",MB_ICONERROR);
+		return 0;
+	}
+	else if(privSuc == 0) {
+		MessageBox(NULL,"Could not get all rights. Injection might fail\r\n"
+			"(just dont be surprised if it fails.)","Warning",MB_ICONWARNING);
 	}
 
 	const char name[] = "AA2Edit.exe";
