@@ -1,5 +1,15 @@
 #include "GenUtils.h"
 
+namespace {
+	HFONT GetSysFont() {
+		NONCLIENTMETRICS ncm;
+		ncm.cbSize = sizeof(ncm);
+		SystemParametersInfo(SPI_GETNONCLIENTMETRICS,sizeof(NONCLIENTMETRICS),&ncm,0);
+		return CreateFontIndirect(&(ncm.lfMenuFont));
+	}
+}
+HFONT g_sysFont = GetSysFont();
+
 int GetEditNumber(HWND edit) {
 	wchar_t num[64];
 	SendMessageW(edit,WM_GETTEXT,64,(LPARAM)num);

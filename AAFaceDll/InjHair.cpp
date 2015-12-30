@@ -23,6 +23,7 @@ void __cdecl InitHairSelector(HWND parent,HINSTANCE hInst) {
 	g_edHairSelector = CreateWindowExW(WS_EX_CLIENTEDGE,
 		L"EDIT",L"0",WS_CHILD | WS_VISIBLE | ES_NUMBER | ES_AUTOHSCROLL,
 		x,y,xw,yw,parent,0,hInst,0);
+	SendMessage(g_edHairSelector,WM_SETFONT,(WPARAM)g_sysFont,TRUE);
 	if (g_edHairSelector == NULL) {
 		int error = GetLastError();
 		g_Logger << Logger::Priority::ERR << "Could not create hair edit window: error code " << error << "\r\n";

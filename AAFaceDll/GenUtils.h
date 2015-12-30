@@ -1,6 +1,8 @@
 #pragma once
 #include <Windows.h>
 
+extern HFONT g_sysFont;
+
 int GetEditNumber(HWND edit);
 void SetEditNumber(HWND edit,int number);
 RECT GetRelativeRect(HWND wnd);

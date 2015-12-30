@@ -89,6 +89,7 @@ void __cdecl FacedetailsAfterDialogInit(FacedetailsDialogClass* internclass, HWN
 	g_edGlassesSelector = CreateWindowExW(WS_EX_CLIENTEDGE,
 		L"EDIT",L"0",WS_CHILD | WS_VISIBLE | ES_NUMBER | ES_AUTOHSCROLL,
 		x,y,xw,yw,wnd,0,(HINSTANCE)g_AA2Base,0);
+	SendMessage(g_edGlassesSelector,WM_SETFONT,(WPARAM)g_sysFont,TRUE);
 	if(g_edGlassesSelector == NULL) {
 		int error = GetLastError();
 		g_Logger << Logger::Priority::ERR << "Could not create Glasses edit box! error " << error << "\r\n";
