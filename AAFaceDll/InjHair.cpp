@@ -21,7 +21,7 @@ void __cdecl InitHairSelector(HWND parent,HINSTANCE hInst) {
 	//{l:1865 t : 531 r : 1907 b : 551}
 	DWORD x = 420,y = 485,xw = 33,yw = 20;
 	g_edHairSelector = CreateWindowExW(WS_EX_CLIENTEDGE,
-		L"EDIT",L"0",WS_CHILD | WS_VISIBLE | ES_NUMBER,
+		L"EDIT",L"0",WS_CHILD | WS_VISIBLE | ES_NUMBER | ES_AUTOHSCROLL,
 		x,y,xw,yw,parent,0,hInst,0);
 	if (g_edHairSelector == NULL) {
 		int error = GetLastError();

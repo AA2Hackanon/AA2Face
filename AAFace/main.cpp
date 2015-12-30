@@ -1,6 +1,8 @@
 #include <Windows.h>
 #include <Psapi.h>
 
+#pragma comment( lib, "psapi.lib" )
+
 int SetDebugPrevilege(HANDLE token,BOOL state) {
 	TOKEN_PRIVILEGES tp;
 	LUID luid;
@@ -79,6 +81,7 @@ int CALLBACK WinMain(
 			HANDLE proc = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ,
 				FALSE,procBuffer[i]);
 			if (proc != NULL) {
+				
 				if(GetModuleFileNameEx(proc,0,buffer,MAX_PATH)) {
 					char* buffit = buffer;
 					while (*buffit) buffit++;

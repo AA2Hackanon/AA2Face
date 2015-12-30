@@ -87,7 +87,7 @@ void __cdecl FacedetailsAfterDialogInit(FacedetailsDialogClass* internclass, HWN
 	y = rct.top;
 	xw = rct.right - rct.left,yw = rct.bottom - rct.top;
 	g_edGlassesSelector = CreateWindowExW(WS_EX_CLIENTEDGE,
-		L"EDIT",L"0",WS_CHILD | WS_VISIBLE | ES_NUMBER,
+		L"EDIT",L"0",WS_CHILD | WS_VISIBLE | ES_NUMBER | ES_AUTOHSCROLL,
 		x,y,xw,yw,wnd,0,(HINSTANCE)g_AA2Base,0);
 	if(g_edGlassesSelector == NULL) {
 		int error = GetLastError();

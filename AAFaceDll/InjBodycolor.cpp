@@ -71,7 +71,7 @@ void __cdecl BodycolorAfterDialogInit(BodycolorDialogClass* internclass,HWND wnd
 	y = rct.top;
 	xw = rct.right - rct.left,yw = rct.bottom - rct.top;
 	g_edTanSelector = CreateWindowExW(WS_EX_CLIENTEDGE,
-		L"EDIT",L"0",WS_CHILD | WS_VISIBLE | ES_NUMBER,
+		L"EDIT",L"0",WS_CHILD | WS_VISIBLE | ES_NUMBER | ES_AUTOHSCROLL,
 		x,y,xw,yw,wnd,0,(HINSTANCE)g_AA2Base,0);
 	if (g_edTanSelector == NULL) {
 		int error = GetLastError();
