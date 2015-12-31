@@ -32,14 +32,15 @@ public:
 		bool ctrl,alt,shift;
 		Context context;
 		ContextKind contextKind;
-		long vkey;
+		long key;
+		bool isVirt;
 		Function func;
 		int iparam;
 		float fparam;
 		Hotkey() : ctrl(false),alt(false),shift(false),
-			context(ALL),contextKind(FOCUS),func(NONE),vkey(-1), iparam(0), fparam(0) {}
+			context(ALL),contextKind(FOCUS),func(NONE),key(-1),isVirt(false),iparam(0), fparam(0) {}
 		bool SameKey(const Hotkey& rhs) const {
-			return vkey == rhs.vkey && ctrl == rhs.ctrl && alt == rhs.alt && shift == rhs.shift;
+			return key == rhs.key && ctrl == rhs.ctrl && alt == rhs.alt && shift == rhs.shift;
 		}
 	};
 private:

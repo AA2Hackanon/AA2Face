@@ -16,7 +16,7 @@ void InjectionsInit() {
 	const std::vector<Config::Hotkey>& keys = g_config.GetHotkeys();
 	if (keys.size() > 0) {
 		auto logKey = [](const Config::Hotkey& key) {
-			g_Logger << "Key " << key.vkey << ", context " << key.context << " as " << key.contextKind
+			g_Logger << "Key " << key.key << ", context " << key.context << " as " << key.contextKind
 				<< ", mods alt|ctrl|shift" << key.alt << "|" << key.ctrl << "|" << key.shift;
 		};
 		ACCEL* accels = new ACCEL[keys.size()];
@@ -24,12 +24,13 @@ void InjectionsInit() {
 		Config::Hotkey nokey;
 		const Config::Hotkey* lastkey = &nokey; //initialise with invalid key
 		for (unsigned int i = 0; i < keys.size(); i++) {
-			if(keys[i].vkey == -1) {
-				g_Logger << Logger::Priority::WARN << "hotkey with undefined vkey value\r\n";
+			if(keys[i].key == -1) {
+				g_Logger << Logger::Priority::WARN << "hotkey with undefined keyvalue value\r\n";
 			}
 			else if(!keys[i].SameKey(*lastkey)) { //only register first of a key/mod combo
-				accels[size].key = (WORD)keys[i].vkey;
-				accels[size].fVirt = FVIRTKEY;
+				accels[size].key = (WORD)keys[i].key;
+				if (keys[i].isVirt) accels[size].fVirt = FVIRTKEY;
+				else				 accels[size].fVirt = 0;
 				if (keys[i].alt) accels[size].fVirt |= FALT;
 				if (keys[i].shift) accels[size].fVirt |= FSHIFT;
 				if (keys[i].ctrl) accels[size].fVirt |= FCONTROL;

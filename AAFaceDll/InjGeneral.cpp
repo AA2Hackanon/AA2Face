@@ -5,7 +5,11 @@
 
 HACCEL g_acKeys = NULL;
 HWND g_dummyHotkeyWnd = NULL;
+
+
 namespace {
+	bool loc_keyNotProcessed = false;
+
 	/*
 	 * If focused is dialog1 or dialog2 or a child of either dialog1 or dialog2
 	 */
@@ -92,7 +96,7 @@ namespace {
 			}
 			else {
 				g_Logger << Logger::Priority::WARN << "Unrecognized context kind " << keyfunc.contextKind <<
-					" for hotkey " << keyfunc.vkey << "\r\n";
+					" for hotkey " << keyfunc.key << "\r\n";
 			}
 			break;
 		case Config::Hotkey::DIALOG_ALL: {
@@ -120,7 +124,7 @@ namespace {
 			break;
 		default:
 			g_Logger << Logger::Priority::WARN << "Unrecognized context value " << keyfunc.context <<
-				" for hotkey " << keyfunc.vkey << "\r\n";
+				" for hotkey " << keyfunc.key << "\r\n";
 		}
 		return true;
 	}
@@ -198,18 +202,27 @@ namespace {
 			break;
 		default:
 			g_Logger << Logger::Priority::WARN << "Unrecognized function value " << keyfunc.func <<
-				" for hotkey " << keyfunc.vkey << "\r\n";
+				" for hotkey " << keyfunc.key << "\r\n";
 		}
 	}
 }
 
 LRESULT CALLBACK DummyHotkeyWndProc(HWND hwnd,UINT msg,WPARAM wparam,LPARAM lparam) {
 	if (msg == WM_COMMAND && lparam == 0 && HIWORD(wparam) == 1) {
+		//make sure we dont catch this key if the focus is in an edit field
+		HWND focus = GetFocus();
+		wchar_t classname[64];
+		int length = GetClassNameW(focus,classname,64);
+		if(length != 0) {
+			if(_wcsicmp(classname, L"EDIT") == 0) {
+				loc_keyNotProcessed = true;
+				return DefWindowProcW(hwnd,msg,wparam,lparam);
+			}
+		}
 		unsigned int i = LOWORD(wparam); //identifier
 		const std::vector<Config::Hotkey>& keyfuncs = g_config.GetHotkeys();
-		HWND focus = GetFocus();
 		const Config::Hotkey& firstkey = keyfuncs[i];
-		if(keyfuncs[i].vkey == -1) {
+		if(keyfuncs[i].key == -1) {
 			g_Logger << Logger::Priority::WARN << "Function with invalid key executed.\r\n";
 		}
 		else {
@@ -222,6 +235,7 @@ LRESULT CALLBACK DummyHotkeyWndProc(HWND hwnd,UINT msg,WPARAM wparam,LPARAM lpar
 		}
 		return 0;
 	}
+	loc_keyNotProcessed = true;
 	return DefWindowProcW(hwnd, msg, wparam, lparam);
 }
 
@@ -247,6 +261,10 @@ void __cdecl PreGetMessageHook() {
 int __cdecl GetMessageHook(MSG* msg) {
 	if (g_acKeys != NULL) {
 		if(TranslateAcceleratorW(g_dummyHotkeyWnd,g_acKeys,msg)) {
+			if(loc_keyNotProcessed) {
+				loc_keyNotProcessed = false;
+				return 1;
+			}
 			return 0; //skip translate / disptach message calls etc
 		}
 		else {
