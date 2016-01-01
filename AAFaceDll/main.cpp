@@ -11,6 +11,8 @@ BOOL WINAPI DllMain(
 	)
 {
 	if(fdwReason == DLL_PROCESS_ATTACH) {
+		//config:
+		g_config = Config("config.txt");
 		ExternInit();
 		InjectionsInit();
 		//change calls in code to ours

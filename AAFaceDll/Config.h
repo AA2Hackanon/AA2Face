@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include "Logger.h"
 
 class Config
 {
@@ -40,7 +41,7 @@ public:
 		Hotkey() : ctrl(false),alt(false),shift(false),
 			context(ALL),contextKind(FOCUS),func(NONE),key(-1),isVirt(false),iparam(0), fparam(0) {}
 		bool SameKey(const Hotkey& rhs) const {
-			return key == rhs.key && ctrl == rhs.ctrl && alt == rhs.alt && shift == rhs.shift;
+			return isVirt == rhs.isVirt && key == rhs.key && ctrl == rhs.ctrl && alt == rhs.alt && shift == rhs.shift;
 		}
 	};
 private:
@@ -68,6 +69,7 @@ private:
 	bool InterpretKey(char* str);
 	bool InterpretZoom(char* str);
 	bool InterpretDisable(char* str);
+	bool InterpretLogger(char* str);
 
 	bool StartsWith(const char* str,const char* word);
 
@@ -76,7 +78,7 @@ private:
 	float zoomMin,zoomMax;
 	bool hookGeneral,hookGlasses,hookHair,hookFace,hookBodycolor;
 	bool hookInvalidHair;
-
+	Logger::Priority logPrio;
 	static const Keywords Commands[];
 
 

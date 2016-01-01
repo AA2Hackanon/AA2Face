@@ -1,4 +1,5 @@
 #include "ExternConstants.h"
+#include "Logger.h"
 
 //so, this seems to always be the same for all dialog classes
 
@@ -44,9 +45,15 @@ void * BaseDialogClass::GetChoiceDataBuffer()
 	else {
 		eax2 = *(DWORD*)((BYTE*)eax1 + 0x2C);
 	}
-	if (eax2 == 0) return NULL;
+	if (eax2 == 0) {
+		LOGPRIO(Logger::Priority::WARN) << "first pointer became NULL!\n";
+		return NULL;
+	}
 	DWORD ebx = *(DWORD*)((BYTE*)eax2 + 0x28);
-	if (ebx == 0) return NULL;
+	if (ebx == 0) {
+		LOGPRIO(Logger::Priority::WARN) << "second pointer became NULL!\n";
+		return NULL;
+	}
 	return (void*)ebx;
 }
 
@@ -65,9 +72,15 @@ const void * BaseDialogClass::GetChoiceDataBuffer() const
 	else {
 		eax2 = *(DWORD*)((BYTE*)eax1 + 0x2C);
 	}
-	if (eax2 == 0) return NULL;
+	if (eax2 == 0) {
+		LOGPRIO(Logger::Priority::WARN) << "first pointer became NULL!\n";
+		return NULL;
+	}
 	DWORD ebx = *(DWORD*)((BYTE*)eax2 + 0x28);
-	if (ebx == 0) return NULL;
+	if (ebx == 0) {
+		LOGPRIO(Logger::Priority::WARN) << "second pointer became NULL!\n";
+		return NULL;
+	}
 	return (const void*)ebx;
 }
 

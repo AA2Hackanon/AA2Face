@@ -9,6 +9,7 @@ HWND g_udHairSelector = NULL;
 namespace {
 	int loc_lastHairTab = -1;
 	int loc_chosenHairs[4] = { -1,-1,-1,-1 };
+	int loc_chosenFlips[4] = { 0, 0, 0, 0 };
 	bool loc_hairButtonClicked = false;
 	bool loc_bUdHairChanged = false;
 	bool loc_bEdIgnoreChange = false;
@@ -26,10 +27,10 @@ void __cdecl InitHairSelector(HWND parent,HINSTANCE hInst) {
 	SendMessage(g_edHairSelector,WM_SETFONT,(WPARAM)g_sysFont,TRUE);
 	if (g_edHairSelector == NULL) {
 		int error = GetLastError();
-		g_Logger << Logger::Priority::ERR << "Could not create hair edit window: error code " << error << "\r\n";
+		LOGPRIO(Logger::Priority::ERR) << "Could not create hair edit window: error code " << error << "\n";
 	}
 	else {
-		g_Logger << Logger::Priority::INFO << "Successfully created hair edit with handle " << g_edHairSelector << "\r\n";
+		LOGPRIO(Logger::Priority::INFO) << "Successfully created hair edit with handle " << g_edHairSelector << "\n";
 	}
 	InitCCs(ICC_UPDOWN_CLASS);
 	g_udHairSelector = CreateWindowExW(0,
@@ -43,33 +44,55 @@ void __cdecl InitHairSelector(HWND parent,HINSTANCE hInst) {
 //similar to GetFaceSelectorIndex (the face one)
 //where tab is 0 (front), 1 (side), 2 (back) or 3 (the other one)
 //and guiChosen is the value polled from the original gui function
-int __cdecl GetHairSelectorIndex(int tab,int guiChosen) {
-	if (tab < 0 || tab > 3) return -1; //shouldnt happen, but lets just go safe here
+int __cdecl GetHairSelectorIndex(HairDialogClass* internclass, int tab,int guiChosen) {
+	if (tab < 0 || tab > 3) {
+		LOGPRIO(Logger::Priority::ERR) << "asked hair selector for tab " << tab << ". This shouldnt happen\n";
+		return -1; //shouldnt happen, but lets just go safe here
+	}
 	if (loc_hairButtonClicked) {
 		//apply gui choice to our edit box, cause apparently the user clicked on a button,
 		//so he probably wants that to show up
 		loc_hairButtonClicked = false;		
 		loc_chosenHairs[tab] = guiChosen;
 		loc_bEdIgnoreChange = true;
+		LOGPRIO(Logger::Priority::SPAM) << "hair button selection " << guiChosen << " was chosen in tab " << tab << "\n";
 		SetEditNumber(g_edHairSelector,loc_chosenHairs[tab]);
 		loc_changedHairDirection = 0; //shouldnt happen anyway
 		return -1;
 	}
 	else if (tab != loc_lastHairTab) {
+		LOGPRIO(Logger::Priority::SPAM) << "hair tab switch from " << loc_lastHairTab << " to " << tab << "; "
+			"loading hair " << loc_chosenHairs[tab] << "\n";
 		loc_lastHairTab = tab;
 		//hair tab changed, so we should refresh our value with the hair of this tab
 		loc_bEdIgnoreChange = true;
 		SetEditNumber(g_edHairSelector,loc_chosenHairs[tab]);
 		loc_changedHairDirection = 0; //also shouldnt happen
+		if (loc_chosenHairs[tab] > 134) {
+			//always enable flip switch for these hairs
+			HWND wnd = internclass->GetFlipButtonWnd();
+			LRESULT res = EnableWindow(wnd,TRUE);
+			int error = GetLastError();
+			LOGPRIO(Logger::Priority::SPAM) << "Enabled Flip-Box because chosen hair (" <<
+				loc_chosenHairs[tab] << ") went over 134 (" << res << "," << error << ")\n";
+		}
 		return loc_chosenHairs[tab];
 	}
 	else {
-		//lets just always return our edit number for now and keep it in sync with the other numbersWM_SET
+		//lets just always return our edit number for now and keep it in sync with the other numbers
 		int ret = GetEditNumber(g_edHairSelector);
+		LOGPRIO(Logger::Priority::SPAM) << "hair " << ret << " was selected from edit in tab " << tab << "\n";
 		loc_changedHairDirection = ret - loc_chosenHairs[tab]; //negative if newchoice < oldchoice
 		loc_chosenHairs[tab] = ret;
 		if (ret < 0 || ret > 255) ret = -1;
-		
+		if (ret > 134) {
+			//always enable flip switch for these hairs
+			HWND wnd = internclass->GetFlipButtonWnd();
+			LRESULT res = EnableWindow(wnd,TRUE);
+			int error = GetLastError();
+			LOGPRIO(Logger::Priority::SPAM) << "Enabled Flip-Box because chosen hair (" <<
+				loc_chosenHairs[tab] << ") went over 134 (" << res << "," << error << ")\n";
+		}
 		return ret;
 	}
 	return -1;
@@ -81,21 +104,32 @@ void __cdecl InitHairTab(HairDialogClass* internclass,bool before) {
 	if (before) {
 		RefreshHairSelectorPosition(internclass);
 		//before the call, we take note of the hair slots used
+		LOGPRIO(Logger::Priority::SPAM) << "hair loaded and initialized to: ";
 		for (int i = 0; i < 4; i++) {
 			BYTE* hairPtr = internclass->HairOfTab(i);
+			BYTE* flipPtr = internclass->FlipBoolOfTab(i);
 			if (hairPtr != NULL) {
 				loc_chosenHairs[i] = *hairPtr;
+				loc_chosenFlips[i] = *flipPtr;
+				g_Logger << (int)*hairPtr << "," << (int)*flipPtr << " ";
 			}
 		}
+		g_Logger << "\n";
 	}
 	else {
 		//after the call, we look at the hair, and correct them if they were changed
+		LOGPRIO(Logger::Priority::SPAM) << "hair loaded and corrected from/to: ";
 		for (int i = 0; i < 4; i++) {
 			BYTE* hairPtr = internclass->HairOfTab(i);
+			BYTE* flipPtr = internclass->FlipBoolOfTab(i);
+			g_Logger << (int)*hairPtr << "," << (int)*flipPtr << "/" << loc_chosenHairs[i] << "," << loc_chosenFlips[i] << " ";
 			if (hairPtr != NULL && loc_chosenHairs[i] != -1 && *hairPtr != loc_chosenHairs[i]) {
 				*hairPtr = loc_chosenHairs[i];
+				*flipPtr = loc_chosenFlips[i];
 			}
+			
 		}
+		g_Logger << "\n";
 		loc_lastHairTab = -1; //make sure that the edit knows that this value is new and has to be put into the edit field
 	}
 }
@@ -117,43 +151,58 @@ int __cdecl HairDialogNotification(HairDialogClass* internclass,HWND hwndDlg,UIN
 	//wow, i dont even know where this part was used. it seems kinda out of place now.
 	//anyway, i should probably change this to a switch at some point. its become really big
 	if (msg == WM_INITDIALOG) {
-		//lets do something convenient here
-		float* zoom = GetMaxZoom();
-		if (zoom != NULL) *zoom = 0.01f; //normal max would be 0.1
+		
 	}
 	else if (msg == WM_DESTROY) {
 		loc_hairclass = NULL;
 	}
 	else if (msg == HAIRMESSAGE_FLIPHAIR) {
 		HWND cbFlip = internclass->GetFlipButtonWnd();
+		LOGPRIO(Logger::Priority::SPAM) << "recieved FLIPHAIR message";
 		SendMessageW(cbFlip,BM_SETCHECK,SendMessageW(cbFlip,BM_GETCHECK,0,0) == BST_CHECKED ? BST_UNCHECKED : BST_CHECKED,0);
 		internclass->SetHairChangeFlags(loc_lastHairTab);
 	}
 	else if (msg == HAIRMESSAGE_ADDHAIR) {
 		if (loc_lastHairTab >= 0 && loc_lastHairTab <= 3) {
 			int diff = (int)wparam;
+			LOGPRIO(Logger::Priority::SPAM) << "recieved ADDHAIR message with diff " << diff;
 			SetEditNumber(g_edHairSelector,loc_chosenHairs[loc_lastHairTab] + diff);
+		}
+		else {
+			LOGPRIO(Logger::Priority::SPAM) << "recieved ADDHAIR message, but current tab is invalid at " << loc_lastHairTab;
 		}
 	}
 	else if (msg == HAIRMESSAGE_SETHAIR) {
 		if (loc_lastHairTab >= 0 && loc_lastHairTab <= 3) {
 			int slot = (int)wparam;
+			LOGPRIO(Logger::Priority::SPAM) << "recieved SETHAIR message with slot " << slot;
 			SetEditNumber(g_edHairSelector,slot);
+		}
+		else {
+			LOGPRIO(Logger::Priority::SPAM) << "recieved SETHAIR message, but current tab is invalid at " << loc_lastHairTab;
 		}
 	}
 	else if (msg == HAIRMESSAGE_HAIRSIZEADD) {
 		if (loc_lastHairTab >= 0 && loc_lastHairTab <= 3) {
 			int diff = (int)wparam;
+			LOGPRIO(Logger::Priority::SPAM) << "recieved HAIRSIZEADD message with diff " << diff;
 			HWND edHairSize = internclass->GetHairSizeEditWnd();
 			int size = GetEditNumber(edHairSize) + diff;
 			SetEditNumber(g_edHairSelector,size);
+		}
+		else {
+			LOGPRIO(Logger::Priority::SPAM) << "recieved HAIRSIZEADD message, but current tab is invalid at " << loc_lastHairTab;
 		}
 	}
 	else if (msg == HAIRMESSAGE_HAIRSIZESET) {
 		if (loc_lastHairTab >= 0 && loc_lastHairTab <= 3) {
 			int size = (int)wparam;
+			LOGPRIO(Logger::Priority::SPAM) << "recieved HAIRSIZESET message with size " << size;
 			HWND edHairSize = internclass->GetHairSizeEditWnd();
 			SetEditNumber(edHairSize,size);
+		}
+		else {
+			LOGPRIO(Logger::Priority::SPAM) << "recieved HAIRSIZESET message, but current tab is invalid at " << loc_lastHairTab;
 		}
 	}
 	else if (msg == WM_COMMAND && lparam != 0) {
@@ -164,10 +213,15 @@ int __cdecl HairDialogNotification(HairDialogClass* internclass,HWND hwndDlg,UIN
 			//make sure the clicked button is not a checkbox, but an actual pushbutton
 			LONG styles = GetWindowLong(wnd,GWL_STYLE);
 			if (!(styles & BS_CHECKBOX)) {
+				LOGPRIO(Logger::Priority::SPAM) << "hair button was clicked\n";
 				loc_hairButtonClicked = true; //This method worked so fine with the face, lets just do that again
 			}
 		}
-		else if (wnd == g_edHairSelector && loc_lastHairTab >= 0 && loc_lastHairTab <= 3) {
+		else if (wnd == g_edHairSelector) {
+			if(loc_lastHairTab < 0 || loc_lastHairTab > 3) {
+				LOGPRIO(Logger::Priority::SPAM) << "hair edit got a message, but tab is invalid with " << loc_lastHairTab << "\n";
+				return FALSE;
+			}
 			if (notification == EN_UPDATE) {
 				if(loc_bEdIgnoreChange) {
 					//allows us to ignore one change as will, usually when we update the edit to fit a certain value
@@ -182,6 +236,7 @@ int __cdecl HairDialogNotification(HairDialogClass* internclass,HWND hwndDlg,UIN
 				else {
 					//edit has been changed, so draw the selected new face
 					int ret = GetEditNumber(g_edHairSelector);
+					LOGPRIO(Logger::Priority::SPAM) << "hair edit got changed to " << ret << "in tab " << loc_lastHairTab << "\n";
 					bool changed = false;
 					if (ret < 0) {
 						//must not be < 0
@@ -197,11 +252,6 @@ int __cdecl HairDialogNotification(HairDialogClass* internclass,HWND hwndDlg,UIN
 						SetEditNumber(g_edHairSelector,ret);
 					}
 					internclass->SetHairChangeFlags(loc_lastHairTab);
-					if (ret > 134) {
-						//always enable flip switch for these hairs
-						HWND wnd = internclass->GetFlipButtonWnd();
-						EnableWindow(wnd,TRUE);
-					}
 				}
 			}
 		}
@@ -274,7 +324,7 @@ void RefreshHairSelectorPosition(HairDialogClass* internclass) {
 	}
 	//and the y of nButtons-1
 	if (nButtons > 1) {
-		HWND btLast = internclass->GetHairSlotButton(nButtons - 1);
+		HWND btLast = internclass->GetHairSlotButton((BYTE)nButtons - 1);
 		RECT rct = GetRelativeRect(btLast);
 		//refresh size, just in case
 		xw = rct.right - rct.left;
@@ -284,7 +334,7 @@ void RefreshHairSelectorPosition(HairDialogClass* internclass) {
 	}
 	MoveWindow(g_edHairSelector,x,y,xw,yw,TRUE);
 	SendMessageW(g_udHairSelector,UDM_SETBUDDY,(WPARAM)g_edHairSelector,0);
-	g_Logger << Logger::Priority::INFO << "Moved Hair edit to position (" << x << "|" << y << "), size " << xw << "x" << yw << "\r\n";
+	LOGPRIO(Logger::Priority::SPAM) << "Moved Hair edit to position (" << x << "|" << y << "), size " << xw << "x" << yw << "\n";
 }
 
 void __cdecl InvalidHairNotifier() {

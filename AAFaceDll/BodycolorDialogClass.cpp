@@ -1,4 +1,5 @@
 #include "ExternConstants.h"
+#include "Logger.h"
 
 HWND BodycolorDialogClass::GetTanButtonHwnd(BYTE n) const{
 	//0x54
@@ -18,7 +19,10 @@ void BodycolorDialogClass::SetChangeFlags()
 
 BYTE BodycolorDialogClass::GetCurrentTanSlot() const{
 	const void* buffer = GetChoiceDataBuffer();
-	if (buffer == NULL) return 0;
+	if (buffer == NULL) {
+		LOGPRIO(Logger::Priority::WARN) << "first pointer became NULL!\n";
+		return 0;
+	}
 	//AA2Edit.exe+20B59 - 88 86 67040000        - mov [esi+00000467],al
 	return *((BYTE*)buffer + 0x467);
 }
@@ -26,7 +30,10 @@ BYTE BodycolorDialogClass::GetCurrentTanSlot() const{
 void BodycolorDialogClass::SetCurrentTanSlot(BYTE slot)
 {
 	void* buffer = GetChoiceDataBuffer();
-	if (buffer == NULL) return;
+	if (buffer == NULL) {
+		LOGPRIO(Logger::Priority::WARN) << "first pointer became NULL!\n";
+		return;
+	}
 	//AA2Edit.exe+20B59 - 88 86 67040000        - mov [esi+00000467],al
 	*((BYTE*)buffer + 0x467) = slot;
 }

@@ -51,7 +51,7 @@ namespace {
 					return false;
 				}
 				if (!IsChildOrEquals(focus,g_AA2DialogHandles[keyfunc.context],*g_AA2UpperDialogHandle)) {
-					g_Logger << Logger::Priority::INFO << "Window " << g_AA2DialogHandles[keyfunc.context] <<
+					LOGPRIO(Logger::Priority::INFO) << "Window " << g_AA2DialogHandles[keyfunc.context] <<
 						" was not in focus\r\n\t";
 					HWND wnd = g_AA2DialogHandles[keyfunc.context];
 					do {
@@ -95,8 +95,8 @@ namespace {
 				}
 			}
 			else {
-				g_Logger << Logger::Priority::WARN << "Unrecognized context kind " << keyfunc.contextKind <<
-					" for hotkey " << keyfunc.key << "\r\n";
+				LOGPRIO(Logger::Priority::WARN)<< Logger::Priority::WARN << "Unrecognized context kind " << keyfunc.contextKind <<
+					" for hotkey " << keyfunc.key << "\n";
 			}
 			break;
 		case Config::Hotkey::DIALOG_ALL: {
@@ -123,8 +123,8 @@ namespace {
 			}
 			break;
 		default:
-			g_Logger << Logger::Priority::WARN << "Unrecognized context value " << keyfunc.context <<
-				" for hotkey " << keyfunc.key << "\r\n";
+			LOGPRIO(Logger::Priority::WARN) << "Unrecognized context value " << keyfunc.context <<
+				" for hotkey " << keyfunc.key << "\n";
 		}
 		return true;
 	}
@@ -201,8 +201,8 @@ namespace {
 			//nop, just put it here so the logger doesnt complain
 			break;
 		default:
-			g_Logger << Logger::Priority::WARN << "Unrecognized function value " << keyfunc.func <<
-				" for hotkey " << keyfunc.key << "\r\n";
+			LOGPRIO(Logger::Priority::WARN) << "Unrecognized function value " << keyfunc.func <<
+				" for hotkey " << keyfunc.key << "\n";
 		}
 	}
 }
@@ -216,6 +216,7 @@ LRESULT CALLBACK DummyHotkeyWndProc(HWND hwnd,UINT msg,WPARAM wparam,LPARAM lpar
 		if(length != 0) {
 			if(_wcsicmp(classname, L"EDIT") == 0) {
 				loc_keyNotProcessed = true;
+				LOGPRIO(Logger::Priority::SPAM) << "Ignored hotkey " << LOWORD(wparam) << " because edit is in focus.\n";
 				return DefWindowProcW(hwnd,msg,wparam,lparam);
 			}
 		}
@@ -223,12 +224,13 @@ LRESULT CALLBACK DummyHotkeyWndProc(HWND hwnd,UINT msg,WPARAM wparam,LPARAM lpar
 		const std::vector<Config::Hotkey>& keyfuncs = g_config.GetHotkeys();
 		const Config::Hotkey& firstkey = keyfuncs[i];
 		if(keyfuncs[i].key == -1) {
-			g_Logger << Logger::Priority::WARN << "Function with invalid key executed.\r\n";
+			LOGPRIO(Logger::Priority::WARN) << "Function with invalid key executed.\n";
 		}
 		else {
 			for (i; i < keyfuncs.size() && keyfuncs[i].SameKey(firstkey); i++) {
 				const Config::Hotkey& keyfunc = keyfuncs[i];
 				if (CheckKeyContext(keyfunc,focus)) {
+					LOGPRIO(Logger::Priority::SPAM) << "Dispatching hotkey " << i<< "\n";
 					ExecuteKeyFunction(keyfunc);
 				}
 			}
@@ -253,12 +255,19 @@ void __cdecl PreGetMessageHook() {
 	g_dummyHotkeyWnd = CreateWindowExW(0,L"AA2EditKeyMessageWindow",NULL,0,0,0,0,0,HWND_MESSAGE,0,(HINSTANCE)g_AA2Base,0);
 	if (g_dummyHotkeyWnd == NULL) {
 		int error = GetLastError();
-		g_Logger << Logger::Priority::ERR << "Could not create Hotkey-Window: Code " << error << "\r\n";
+		LOGPRIO(Logger::Priority::ERR) << "Could not create Hotkey-Window: Code " << error << "\n";
 	}
 }
 
 //return 0 to skip translate/dispatch message calls
 int __cdecl GetMessageHook(MSG* msg) {
+
+	//lets do something convenient here
+	float* zoom = GetMaxZoom();
+	if (zoom != NULL) *zoom = g_config.GetZoomMax(); //normal max would be 0.1
+	zoom = GetMinZoom();
+	if (zoom != NULL) *zoom = g_config.GetZoomMin(); //normal max would be 0.1
+
 	if (g_acKeys != NULL) {
 		if(TranslateAcceleratorW(g_dummyHotkeyWnd,g_acKeys,msg)) {
 			if(loc_keyNotProcessed) {

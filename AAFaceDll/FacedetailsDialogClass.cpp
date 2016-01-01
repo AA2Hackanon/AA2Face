@@ -42,7 +42,8 @@ void FacedetailsDialogClass::SetChangeFlags()
 	//DWORD esi = *(DWORD*)((BYTE*)this + 0xB8);
 	BYTE* flagPtr = ((BYTE*)this + 0x19C);
 	*flagPtr = 1;
-	BYTE* eax = *(BYTE**)((BYTE*)this + 0x3C);
+	//BYTE* eax = *(BYTE**)((BYTE*)this + 0x3C);
+	BYTE* eax = (BYTE*)g_AA2RedrawFlagTable;
 	*(eax+0x14) = 1;
 }
 

@@ -34,6 +34,7 @@ public:
 class HairDialogClass : public BaseDialogClass {
 public:
 	BYTE* HairOfTab(int tab);
+	BYTE* FlipBoolOfTab(int tab);
 	void SetHairChangeFlags(int tab);
 	bool HairSlotExists(BYTE slot,int hairKind) const;
 	bool HairSlotExists2(BYTE slot,int hairKind) const;

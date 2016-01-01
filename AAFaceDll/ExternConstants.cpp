@@ -1,5 +1,6 @@
 #include <Windows.h>
 #include "ExternConstants.h"
+#include "Logger.h"
 
 const char* g_strModuleName = "AA2Edit.exe";
 DWORD g_AA2Base = 0;
@@ -40,7 +41,7 @@ void ExternInit() {
 	g_AA2DialogHandles = (const HWND*)(g_AA2Base + 0x353184);
 	g_AA2CurrZoom = (float*)(g_AA2Base + 0x343654);
 	g_AA2MaxTilt = (float*)(g_AA2Base + 0x314D30);
-	
+	LOGPRIO(Logger::Priority::INFO) << "AA2Base found as " << (void*)g_AA2Base << "\n";
 }
 
 float* GetMinZoom() {

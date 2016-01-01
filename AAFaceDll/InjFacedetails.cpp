@@ -29,11 +29,13 @@ void __cdecl FacedetailsDialogNotification(FacedetailsDialogClass* internclass,H
 	if(msg == FACEDETAILSMESSAGE_ADDGLASSES) {
 		int diff = (int)wparam;
 		int ret = GetEditNumber(g_edGlassesSelector);
+		LOGPRIO(Logger::Priority::SPAM) << "recieved ADDGLASSES message with diff " << diff << "\n";
 		ret += diff;
 		SetEditNumber(g_edGlassesSelector,ret);
 	}
 	else if(msg == FACEDETAILSMESSAGE_SETGLASSES) {
 		int set = (int)wparam;
+		LOGPRIO(Logger::Priority::SPAM) << "recieved SETGLASSES message with slot " << set << "\n";
 		SetEditNumber(g_edGlassesSelector,set);
 	}
 	else if (msg == WM_COMMAND && lparam != 0) {
@@ -52,12 +54,14 @@ void __cdecl FacedetailsDialogNotification(FacedetailsDialogClass* internclass,H
 			}
 			if (found) {
 				//it was a glasses button, so respect that change
+				LOGPRIO(Logger::Priority::SPAM) << "Glasses button was clicked\n";
 				loc_glassesButtonClicked = true;
 			}
 		}
 		if (wnd == g_edGlassesSelector) {
 			if (notification == EN_UPDATE) {
 				int ret = GetEditNumber(g_edGlassesSelector);
+				LOGPRIO(Logger::Priority::SPAM) << "glasses edit got changed to " << ret << "\n";
 				bool changed = false;
 				if (ret < 0) {
 					//must not be < 0
@@ -92,10 +96,10 @@ void __cdecl FacedetailsAfterDialogInit(FacedetailsDialogClass* internclass, HWN
 	SendMessage(g_edGlassesSelector,WM_SETFONT,(WPARAM)g_sysFont,TRUE);
 	if(g_edGlassesSelector == NULL) {
 		int error = GetLastError();
-		g_Logger << Logger::Priority::ERR << "Could not create Glasses edit box! error " << error << "\r\n";
+		LOGPRIO(Logger::Priority::ERR) << "Could not create Glasses edit box! error " << error << "\n";
 	}
 	else {
-		g_Logger << Logger::Priority::INFO << "Successfully created Glasses edit with handle " << g_edGlassesSelector << "\r\n";
+		LOGPRIO(Logger::Priority::INFO) << "Successfully created Glasses edit with handle " << g_edGlassesSelector << "\n";
 	}
 	InitCCs(ICC_UPDOWN_CLASS);
 	g_udGlassesSelector = CreateWindowExW(0,
@@ -113,11 +117,13 @@ void __cdecl FacedetailsAfterInit(void* internclass) {
 int __cdecl GetGlassesSelectorIndex(FacedetailsDialogClass* internclass,int guiChosen) {
 	if(loc_glassesButtonClicked) {
 		loc_glassesButtonClicked = false;
+		LOGPRIO(Logger::Priority::SPAM) << "selecting glasses index after button click to " << guiChosen << "\n";
 		SetEditNumber(g_edGlassesSelector,guiChosen);
 		return -1;
 	}
 	else {
 		int ret = GetEditNumber(g_edGlassesSelector);
+		LOGPRIO(Logger::Priority::SPAM) << "selecting glasses index from edit to " << ret << "\n";
 		if (ret < 0 || ret > 255) ret = -1;
 		return ret;
 	}
@@ -127,12 +133,14 @@ void __cdecl InitFacedetailsTab(FacedetailsDialogClass* internclass,bool before)
 	if(before) {
 		//before the call, we take note of the hair slots used
 		loc_glassesslot = internclass->GetGlassesSlot();
+		LOGPRIO(Logger::Priority::SPAM) << "glasses loaded and initialized to " << loc_glassesslot << "\n";
 	}
 	else {
 		//after the call, we look at the hair, and correct them if they were changed
 		BYTE newslot = internclass->GetGlassesSlot();
 		SetEditNumber(g_edGlassesSelector,loc_glassesslot);
 		internclass->SetGlassesSlot(loc_glassesslot);
+		LOGPRIO(Logger::Priority::SPAM) << "glasses loaded and corrected from " << newslot << "\n";
 	}
 }
 

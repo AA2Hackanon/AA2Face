@@ -1,3 +1,12 @@
+;VERBOSITY sets the verbosity of the logger. possible modes:
+;	SPAM
+;	INFO
+;	WARNING
+;	ERROR
+;	CRITICAL_ERROR
+
+VERBOSITY SPAM
+
 ;DISABLE disables certain features:
 ;	GENERAL				: disables hotkeys
 ;	FACE				: disables face dropdowns

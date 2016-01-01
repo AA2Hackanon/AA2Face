@@ -12,6 +12,7 @@ void FaceDialogClass::SetChangeFlags() {
 	//apparently internclass+0x80 is a bool that is set to 1 if faces change, so lets just do that
 	*(classptr+0x80) = 1;
 	//this one also has to be set to 1 it seems. no idea why. lets hope it doesnt break.
-	BYTE* someVal = *(BYTE**)(classptr+0x3C);
+	//BYTE* someVal = *(BYTE**)(classptr+0x3C);
+	BYTE* someVal = (BYTE*)g_AA2RedrawFlagTable;
 	*(someVal+0x12) = 1;
 }

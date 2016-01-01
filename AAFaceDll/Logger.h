@@ -1,10 +1,16 @@
 #pragma once
 #include <fstream>
 
+#define LOGPRIONC(prio) if(g_Logger.FilterPriority(prio)) g_Logger << prio << 
+#define LOGPRIOC(prio) if(g_Logger.FilterPriority(prio)) g_Logger << prio << __FUNCSIC __ ": " <<
+#define LOGPRIO(prio) if(g_Logger.FilterPriority(prio)) g_Logger << prio << \
+	(g_Logger.FilterPriority(Logger::Priority::SPAM) ? ("[" __FUNCSIG__ "]: ") : "")
+
 class Logger
 {
 public:
 	enum class Priority {
+		SPAM,
 		INFO,
 		WARN,
 		ERR,
@@ -27,6 +33,9 @@ public:
 	Logger& operator<<(const Priority& prio) {
 		currPrio = prio;
 		switch(prio) {
+		case Priority::SPAM:
+			*this << "[SPAM] ";
+			break;
 		case Priority::INFO:
 			*this << "[INFO] ";
 			break;
@@ -44,6 +53,7 @@ public:
 	}
 
 	void SetPriority(Priority prio);
+	bool FilterPriority(Priority prio);
 private:
 	std::ofstream outfile;
 	Priority filter;

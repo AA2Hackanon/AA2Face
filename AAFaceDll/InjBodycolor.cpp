@@ -14,10 +14,12 @@ namespace {
 void __cdecl BodycolorDialogNotification(BodycolorDialogClass* internclass,HWND wnd,UINT msg,WPARAM wparam,LPARAM lparam) {
 	if(msg == BODYCOLORMESSAGE_ADDTAN) {
 		int diff = (int)wparam;
+		LOGPRIO(Logger::Priority::SPAM) << "recieved ADDTAN message with diff " << diff << "\n";
 		SetEditNumber(g_edTanSelector,GetEditNumber(g_edTanSelector) + diff);
 	}
 	else if(msg == BODYCOLORMESSAGE_SETTAN) {
 		int slot = (int)wparam;
+		LOGPRIO(Logger::Priority::SPAM) << "recieved ADDTAN message with slot " << slot << "\n";
 		SetEditNumber(g_edTanSelector,slot);
 	}
 	else if (msg == WM_COMMAND && lparam != 0) {
@@ -25,7 +27,7 @@ void __cdecl BodycolorDialogNotification(BodycolorDialogClass* internclass,HWND 
 		DWORD notification = HIWORD(wparam);
 		HWND wnd = (HWND)lparam;
 		if (notification == BN_CLICKED) {
-			//check if the pressed button was a glasses-button
+			//check if the pressed button was a tan-button
 			int nButtons = internclass->GetTanButtonCount();
 			bool found = false;
 			for (int i = 0; i < nButtons; i++) {
@@ -35,7 +37,8 @@ void __cdecl BodycolorDialogNotification(BodycolorDialogClass* internclass,HWND 
 				}
 			}
 			if (found) {
-				//it was a glasses button, so respect that change
+				//it was atan button, so respect that change
+				LOGPRIO(Logger::Priority::SPAM) << "Tan button was clicked\n";
 				loc_tanButtonClicked = true;
 			}
 		}
@@ -43,6 +46,7 @@ void __cdecl BodycolorDialogNotification(BodycolorDialogClass* internclass,HWND 
 			if (notification == EN_UPDATE) {
 				int ret = GetEditNumber(g_edTanSelector);
 				bool changed = false;
+				LOGPRIO(Logger::Priority::SPAM) << "tan edit got changed to " << ret << "\n";
 				if (ret < 0) {
 					//must not be < 0
 					ret = 0;
@@ -76,10 +80,10 @@ void __cdecl BodycolorAfterDialogInit(BodycolorDialogClass* internclass,HWND wnd
 	SendMessage(g_edTanSelector,WM_SETFONT,(WPARAM)g_sysFont,TRUE);
 	if (g_edTanSelector == NULL) {
 		int error = GetLastError();
-		g_Logger << Logger::Priority::ERR << "Could not create Tan edit box! error " << error << "\r\n";
+		LOGPRIO(Logger::Priority::ERR) << "Could not create Tan edit box! error " << error << "\n";
 	}
 	else {
-		g_Logger << Logger::Priority::INFO << "Successfully created Tan edit with handle " << g_edTanSelector << "\r\n";
+		LOGPRIO(Logger::Priority::INFO) << "Successfully created Tan edit with handle " << g_edTanSelector << "\n";
 	}
 	InitCCs(ICC_UPDOWN_CLASS);
 	g_udTanSelector = CreateWindowExW(0,
@@ -92,11 +96,13 @@ void __cdecl BodycolorAfterDialogInit(BodycolorDialogClass* internclass,HWND wnd
 int __cdecl GetTanSelectorIndex(BodycolorDialogClass* internclass,int guiChosen) {
 	if (loc_tanButtonClicked) {
 		loc_tanButtonClicked = false;
+		LOGPRIO(Logger::Priority::SPAM) << "selecting tan index after button click to " << guiChosen << "\n";
 		SetEditNumber(g_edTanSelector,guiChosen);
 		return -1;
 	}
 	else {
 		int ret = GetEditNumber(g_edTanSelector);
+		LOGPRIO(Logger::Priority::SPAM) << "selecting tan index from edit to " << ret << "\n";
 		if (ret < 0 || ret > 255) ret = -1;
 		return ret;
 	}
@@ -106,12 +112,14 @@ void __cdecl InitBodycolorTab(BodycolorDialogClass* internclass,bool before) {
 	if (before) {
 		//before the call, we take note of the hair slots used
 		loc_tanslot = internclass->GetCurrentTanSlot();
+		LOGPRIO(Logger::Priority::SPAM) << "tan loaded and initialized to " << loc_tanslot << "\n";
 	}
 	else {
 		//after the call, we look at the hair, and correct them if they were changed
 		BYTE newslot = internclass->GetCurrentTanSlot();
 		internclass->SetCurrentTanSlot(loc_tanslot);
 		SetEditNumber(g_edTanSelector,loc_tanslot);
+		LOGPRIO(Logger::Priority::SPAM) << "tan loaded and corrected from " << newslot << "\n";
 	}
 }
 

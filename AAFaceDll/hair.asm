@@ -75,8 +75,9 @@ hairdialog_refresh_hair_inject:
 	push eax ; lets make this value a parameter as well. the more info the better.
 	mov eax, [esi+000002A0h]
 	push eax ; and the tab
+	push esi ; the hair dialog class
 	call GetHairSelectorIndex
-	add esp, 8 ; also, cdecl
+	add esp, 0Ch ; also, cdecl
 	cmp eax, -1
 	jne skipHairSelection ; if not -1, use this value
 					  ; else, use original value from stack
