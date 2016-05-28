@@ -7,6 +7,30 @@ int GetEditNumber(HWND edit);
 void SetEditNumber(HWND edit,int number);
 RECT GetRelativeRect(HWND wnd);
 
+bool CreateUpDownControl(HWND parent, int x,int y,int xw,int yw,_Out_ HWND& edWnd,_Out_ HWND& udWnd);
+/* makes sure the edit holds an integer out of [low,high] */
+void LimitEditInt(HWND edit,int low,int high);
+
+/*
+ * trys to find the button using the given getButtonFunction and the given limits.
+ * returns index it found  the button, or -1 if it didnt.
+ */
+template <typename T>
+int FindButtonInList(HWND button,
+					const T* internclass,
+					HWND(T::*GetButtonWnd)(BYTE slot) const,
+					int nButtons)
+{
+	int retVal = -1;
+	for (int i = 0; i < nButtons; i++) {
+		if (button == (internclass->*GetButtonWnd)(i)) {
+			retVal = i;
+			break;
+		}
+	}
+	return retVal;
+}
+
 template <typename T>
 RECT GetNextButtonPosition(const T* internclass, //this-object used
 							int nButtons, //total amount of buttons that allready exist

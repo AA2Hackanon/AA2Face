@@ -116,3 +116,22 @@ int BaseDialogClass::GetButtonListCount(int offset) const
 	DWORD last = *(DWORD*)((BYTE*)edi + 0x18);
 	return (last-first)/0x10;
 }
+
+BYTE BaseDialogClass::GetChoiceFlag(DWORD index) const {
+	const void* buffer = GetChoiceDataBuffer();
+	if (buffer == NULL) {
+		LOGPRIO(Logger::Priority::WARN) << "first pointer became NULL!\n";
+		return 0;
+	}
+	//AA2Edit.exe+20B59 - 88 86 67040000        - mov [esi+00000467],al
+	return *((BYTE*)buffer + index);
+}
+void BaseDialogClass::SetChoiceFlag(DWORD index,BYTE slot) {
+	void* buffer = GetChoiceDataBuffer();
+	if (buffer == NULL) {
+		LOGPRIO(Logger::Priority::WARN) << "first pointer became NULL!\n";
+		return;
+	}
+	//AA2Edit.exe+20B59 - 88 86 67040000        - mov [esi+00000467],al
+	*((BYTE*)buffer + index) = slot;
+}

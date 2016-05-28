@@ -10,6 +10,7 @@ EXTERN InitHairSelector:PROC
 EXTERN HairDialogNotification:PROC
 EXTERN HairDialogAfterInit:PROC
 EXTERN InvalidHairNotifier:PROC
+EXTERN HairInfoNotifier:PROC
 
 EXTERNDEF hairdialog_refresh_hair_inject:PROC
 EXTERNDEF hairdialog_init_hair_inject:PROC
@@ -17,6 +18,7 @@ EXTERNDEF hairdialog_constructor_inject:PROC
 EXTERNDEF hairdialog_hooked_dialog_proc:PROC
 EXTERNDEF hairdialog_hooked_dialog_proc_afterinit:PROC
 EXTERNDEF hairdialog_invalid_hair_loaded:PROC
+EXTERNDEF hairdialog_hooked_loadhairinfo:PROC
 
 .data
 	hInstTmp DWORD 0
@@ -147,4 +149,30 @@ hairdialog_invalid_hair_loaded:
 	popad
 	mov byte ptr [esi+ecx+25Ch], 00
 	ret
+
+;this is the cleanest of the 4 calls. we have 2 pushed parameters and edi as this.
+;the first push is the tab, the second push is the location where the pointer to the
+;info will be placed after the call
+;AA2Edit.exe+29176 - 6A 02                 - push 02 { 2 }
+;AA2Edit.exe+29178 - 8D 44 24 48           - lea eax,[esp+48]
+;AA2Edit.exe+2917C - 8D 56 5C              - lea edx,[esi+5C]
+;AA2Edit.exe+2917F - 50                    - push eax
+;AA2Edit.exe+29180 - E8 BB000F00           - call AA2Edit.exe+119240
+hairdialog_hooked_loadhairinfo:
+	push [esp+8]		;copy parameters first
+	push [esp+8]		;(since push moves esp, those are the 2)
+	mov eax, [g_AA2Base]
+	add eax, 119240h
+	call eax			;call original function
+						;void HairInfoNotifier(int tab, void* hairinfo)
+	push eax			;rescue return value
+	mov eax, [esp+8]	;pointer to return value
+	mov eax, [eax+4]	;get the actual pointer
+	mov ecx, [esp+0Ch]	;the tab
+	push eax
+	push ecx
+	call HairInfoNotifier
+	add esp, 8			;cdecl
+	pop eax				;get return value back
+	ret 8				;note that we still have to get rid of the original parameters
 END

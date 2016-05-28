@@ -63,6 +63,7 @@ public:
 	bool GetDisabledFace() const;
 	bool GetDisabledHairSkipInvalid() const;
 	bool GetDisabledBodycolor() const;
+	bool GetDisabledLimits() const;
 private:
 	void GetLine(char* str,char** nextLine);
 	char* GetToken(char* str, char** nextLine);
@@ -77,7 +78,7 @@ private:
 	std::vector<Hotkey> hotkeys;
 	float zoomMin,zoomMax;
 	bool hookGeneral,hookGlasses,hookHair,hookFace,hookBodycolor;
-	bool hookInvalidHair;
+	bool hookInvalidHair,hookLimits;
 	Logger::Priority logPrio;
 	static const Keywords Commands[];
 

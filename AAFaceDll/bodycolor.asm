@@ -6,12 +6,20 @@ EXTERN g_AA2Base:DWORD
 EXTERN BodycolorDialogNotification:PROC
 EXTERN BodycolorAfterDialogInit:PROC
 EXTERN GetTanSelectorIndex:PROC
+EXTERN GetNipTypeSelectorIndex:PROC
+EXTERN GetNipColorSelectorIndex:PROC
+EXTERN GetMosaicSelectorIndex:PROC
+EXTERN GetPubHairSelectorIndex:PROC
 EXTERN InitBodycolorTab:PROC
 
 EXTERNDEF bodycolor_hooked_dialog_proc:PROC
 EXTERNDEF bodycolor_hooked_dialog_proc_afterinit:PROC
-EXTERNDEF bodycolor_refresh_glasses_inject:PROC
+EXTERNDEF bodycolor_refresh_tan_inject:PROC
+EXTERNDEF bodycolor_refresh_nipcolor_inject:PROC
+EXTERNDEF bodycolor_refresh_niptype_inject:PROC
 EXTERNDEF bodycolor_init_hair_inject:PROC
+EXTERNDEF bodycolor_refresh_pubhair_inject:PROC
+EXTERNDEF bodycolor_refresh_mosaic_inject:PROC
 
 .code
 
@@ -59,7 +67,7 @@ bodycolor_hooked_dialog_proc_afterinit:
 ;AA2Edit.exe+20B51 - 8B 7B 54              - mov edi,[ebx+54]
 ;AA2Edit.exe+20B54 - E8 4769FFFF           - call AA2Edit.exe+174A0
 ;AA2Edit.exe+20B59 - 88 86 67040000        - mov[esi+00000467],al
-bodycolor_refresh_glasses_inject:
+bodycolor_refresh_tan_inject:
 	mov eax, [g_AA2Base]
 	add eax, 174A0h
 	call eax
@@ -69,10 +77,91 @@ bodycolor_refresh_glasses_inject:
 	call GetTanSelectorIndex
 	add esp, 8
 	cmp eax, -1
-	jne bodycolor_refresh_glasses_inject_skipSelection ; if not -1, use this value
+	jne bodycolor_refresh_tan_inject_skipSelection ; if not -1, use this value
 					  ; else, use original value from stack
 	mov eax, [esp] 
-  bodycolor_refresh_glasses_inject_skipSelection:
+  bodycolor_refresh_tan_inject_skipSelection:
+	add esp, 4 ; clean eax from stack
+	ret
+
+;AA2Edit.exe+20B12 - 8B 7B 48              - mov edi,[ebx+48]
+;AA2Edit.exe+20B15 - E8 8669FFFF           - call AA2Edit.exe+174A0
+;AA2Edit.exe+20B1A - 88 86 64040000        - mov [esi+00000464],al
+bodycolor_refresh_niptype_inject:
+	mov eax, [g_AA2Base]
+	add eax, 174A0h
+	call eax
+	push eax ; save return value for now
+	push eax
+	push ebx ; ebx is the class
+	call GetNipTypeSelectorIndex
+	add esp, 8
+	cmp eax, -1
+	jne bodycolor_refresh_niptype_inject_skipSelection ; if not -1, use this value
+					  ; else, use original value from stack
+	mov eax, [esp] 
+  bodycolor_refresh_niptype_inject_skipSelection:
+	add esp, 4 ; clean eax from stack
+	ret
+
+;AA2Edit.exe+20B20 - 8B 7B 4C              - mov edi,[ebx+4C]
+;AA2Edit.exe+20B23 - E8 7869FFFF           - call AA2Edit.exe+174A0
+;AA2Edit.exe+20B28 - 88 86 65040000        - mov [esi+00000465],al
+bodycolor_refresh_nipcolor_inject:
+	mov eax, [g_AA2Base]
+	add eax, 174A0h
+	call eax
+	push eax ; save return value for now
+	push eax
+	push ebx ; ebx is the class
+	call GetNipColorSelectorIndex
+	add esp, 8
+	cmp eax, -1
+	jne bodycolor_refresh_nipcolor_inject_skipSelection ; if not -1, use this value
+					  ; else, use original value from stack
+	mov eax, [esp] 
+  bodycolor_refresh_nipcolor_inject_skipSelection:
+	add esp, 4 ; clean eax from stack
+	ret
+
+;mosaic and pub hair poll (in this order). mosaic flag is 11, pub hair flag is B
+;AA2Edit.exe+20B82 - 8B 7B 5C              - mov edi,[ebx+5C]
+;AA2Edit.exe+20B85 - E8 1669FFFF           - call AA2Edit.exe+174A0
+;AA2Edit.exe+20B8A - 88 86 69040000        - mov [esi+00000469],al
+bodycolor_refresh_mosaic_inject:
+	mov eax, [g_AA2Base]
+	add eax, 174A0h
+	call eax
+	push eax ; save return value for now
+	push eax
+	push ebx ; ebx is the class
+	call GetMosaicSelectorIndex
+	add esp, 8
+	cmp eax, -1
+	jne bodycolor_refresh_mosaic_inject_skipSelection ; if not -1, use this value
+					  ; else, use original value from stack
+	mov eax, [esp] 
+  bodycolor_refresh_mosaic_inject_skipSelection:
+	add esp, 4 ; clean eax from stack
+	ret
+
+;AA2Edit.exe+20B90 - 8B 7B 60              - mov edi,[ebx+60]
+;AA2Edit.exe+20B93 - E8 0869FFFF           - call AA2Edit.exe+174A0
+;AA2Edit.exe+20B98 - 88 86 5C040000        - mov [esi+0000045C],al
+bodycolor_refresh_pubhair_inject:
+	mov eax, [g_AA2Base]
+	add eax, 174A0h
+	call eax
+	push eax ; save return value for now
+	push eax
+	push ebx ; ebx is the class
+	call GetPubHairSelectorIndex
+	add esp, 8
+	cmp eax, -1
+	jne bodycolor_refresh_pubhair_inject_skipSelection ; if not -1, use this value
+					  ; else, use original value from stack
+	mov eax, [esp] 
+  bodycolor_refresh_pubhair_inject_skipSelection:
 	add esp, 4 ; clean eax from stack
 	ret
 

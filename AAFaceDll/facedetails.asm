@@ -7,6 +7,7 @@ EXTERN FacedetailsDialogNotification:PROC
 EXTERN FacedetailsAfterDialogInit:PROC
 EXTERN FacedetailsAfterInit:PROC
 EXTERN GetGlassesSelectorIndex:PROC
+EXTERN GetLipColorSelectorIndex:PROC
 EXTERN InitGlassesSelector:PROC
 EXTERN InitFacedetailsTab:PROC
 
@@ -15,6 +16,7 @@ EXTERNDEF facedetails_hooked_dialog_proc:PROC
 EXTERNDEF facedetails_hooked_dialog_proc_afterinit:PROC
 EXTERNDEF facedetails_afterinit:PROC
 EXTERNDEF facedetails_refresh_glasses_inject:PROC
+EXTERNDEF facedetails_refresh_lipcolor_inject:PROC
 EXTERNDEF facedetails_constructor_inject:PROC
 
 .data
@@ -114,6 +116,28 @@ facedetails_refresh_glasses_inject:
   facedetails_refresh_glasses_inject_skipSelection:
 	add esp, 4 ; clean eax from stack
 	ret
+
+
+;AA2Edit.exe+26D7B - 8B 7D 58              - mov edi,[ebp+58]
+;AA2Edit.exe+26D7E - E8 1D07FFFF           - call AA2Edit.exe+174A0
+;AA2Edit.exe+26D83 - 88 83 96060000        - mov[ebx+00000696],al
+facedetails_refresh_lipcolor_inject:
+	mov eax, [g_AA2Base]
+	add eax, 174A0h
+	call eax ; i like how this is always the same function for every single dialog
+	push eax ; save return value for now
+	push eax
+	push ebp
+	call GetLipColorSelectorIndex
+	add esp, 8
+	cmp eax, -1
+	jne facedetails_refresh_lipcolor_inject_skipSelection ; if not -1, use this value
+					  ; else, use original value from stack
+	mov eax, [esp] 
+  facedetails_refresh_lipcolor_inject_skipSelection:
+	add esp, 4 ; clean eax from stack
+	ret
+
 
 ;AA2Edit.exe+1C449 - 8B 85 B8000000        - mov eax,[ebp+000000B8]
 ;AA2Edit.exe+1C44F - E8 9CAC0000           - call AA2Edit.exe+270F0

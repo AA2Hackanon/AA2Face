@@ -136,6 +136,9 @@
     <Text Include="items.txt">
       <Filter>Source Files\configs</Filter>
     </Text>
+    <Text Include="readme.txt">
+      <Filter>Source Files\configs</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="face.asm">

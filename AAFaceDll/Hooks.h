@@ -32,5 +32,7 @@ void HookFace();
 void HookHair();
 void HookFacedetails();
 
+void HookLimits();
+
 void HookTEMPTEST();
 void HookHairMaxAmount();

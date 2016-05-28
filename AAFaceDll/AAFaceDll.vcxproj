@@ -157,6 +157,7 @@
   <ItemGroup>
     <Text Include="config.txt" />
     <Text Include="items.txt" />
+    <Text Include="readme.txt" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="bodycolor.asm" />

@@ -32,6 +32,9 @@ BOOL WINAPI DllMain(
 		if(!g_config.GetDisabledBodycolor()) {
 			HookBodycolor();
 		}
+		if(!g_config.GetDisabledLimits()) {
+			HookLimits();
+		}
 		
 		
 		//HookSystem();

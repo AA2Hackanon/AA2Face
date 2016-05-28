@@ -15,6 +15,8 @@ class BaseDialogClass {
 protected:
 	void* GetChoiceDataBuffer();
 	const void* GetChoiceDataBuffer() const;
+	BYTE GetChoiceFlag(DWORD index) const;
+	void SetChoiceFlag(DWORD index,BYTE slot);
 	HWND GetButtonListWnd(int offset,int buttonNumber) const;
 	int GetButtonListCount(int offset) const;
 };
@@ -44,6 +46,19 @@ public:
 	HWND GetHairSizeEditWnd() const;
 	int GetButtonCount() const;
 };
+/*
+ * the temp hair info struct as returned by the hair poll
+ */
+struct TempHairInfos {
+	wchar_t targetPPMask[130];
+	wchar_t targetXXMask[130];
+	wchar_t targetUnknownMask[130];
+	wchar_t targetTgaMask[130];
+	wchar_t dunnoAlwaysEmpty[130];
+	DWORD targetXAMaskStructPointer;
+	DWORD hasFlip; //1 if has a flip, else 0
+};
+static_assert(sizeof(TempHairInfos) == 0x51C,"TempHairInfos struct should be 51C bytes long, as thats the constant they go through the array with");
 
 class FacedetailsDialogClass : public BaseDialogClass {
 public:
@@ -51,20 +66,52 @@ public:
 	BYTE GetUpperEyelidSlot() const;
 	BYTE GetLowerEyelidSlot() const;
 	BYTE GetGlassesSlot() const;
-	BYTE GetLipColorSlot() const;
 	void SetGlassesSlot(BYTE slot);
+	BYTE GetLipColorSlot() const;
+	void SetLipColorSlot(BYTE slot) const;
+	BYTE GetLipOpacityValue() const;
+	void SetLipOpacityValue(BYTE value);
 	HWND GetGlassesButtonWnd(BYTE n) const;
 	int GetGlassButtonCount() const;
+	HWND GetLipColorButtonWnd(BYTE n) const;
+	int GetLipColorButtonCount() const;
+	BYTE GetLipOpacityGuiValue() const;
+	void SetLipOpacityGuiValue(BYTE b);
 	void SetChangeFlags();
+
+	HWND GetLipOpacityEditWnd() const;
+	HWND GetLipOpacityTrackWnd() const;
 };
 
 class BodycolorDialogClass : public BaseDialogClass {
 public:
+	HWND GetNipTypeButtonHwnd(BYTE n) const;
+	int GetNipTypeButtonCount() const;
+	HWND GetNipColorButtonHwnd(BYTE n) const;
+	int GetNipColorButtonCount() const;
 	HWND GetTanButtonHwnd(BYTE n) const;
 	int GetTanButtonCount() const;
+	HWND GetMosiacButtonHwnd(BYTE n) const;
+	int GetMosaicButtonCount() const;
+	HWND GetPubHairButtonHwnd(BYTE n) const;
+	int GetPubHairButtonCount() const;
+	HWND GetPubHairOpacityEditWnd() const;
+
 	void SetChangeFlags();
+	BYTE GetCurrentNipTypeSlot() const;
+	void SetCurrentNipTypeSlot(BYTE slot);
+	BYTE GetCurrentNipColorSlot() const;
+	void SetCurrentNipColorSlot(BYTE slot);
 	BYTE GetCurrentTanSlot() const;
 	void SetCurrentTanSlot(BYTE slot);
+	BYTE GetCurrentMosaicSlot() const;
+	void SetCurrentMosaicSlot(BYTE slot);
+	BYTE GetCurrentPubHairSlot() const;
+	void SetCurrentPubHairSlot(BYTE slot);
+	BYTE GetCurrentPubHairOpacityValue();
+	void SetCurrentPubHairOpacityValue(BYTE value);
+	BYTE GetCurrentPubHairOpacityGuiValue();
+	void SetCurrentPubHairOpacityGuiValue(BYTE value);
 };
 
 float* GetMinZoom();
@@ -279,6 +326,24 @@ void ExternInit();
 //AA2Edit.exe+294DB - 3D 87000000           - cmp eax,00000087
 //AA2Edit.exe+294E6 - 3D 87000000           - cmp eax,00000087
 //AA2Edit.exe+294ED - B8 87000000           - mov eax,00000087
+
+//insert tab 1
+//AA2Edit.exe+28E76 - E8 45120000           - call AA2Edit.exe+2A0C0
+//getting tab 2 bool ptr
+//AA2Edit.exe+290F4 - 8B 73 04              - mov esi,[ebx+04]
+//insert tab 2?
+//AA2Edit.exe+29121 - E8 1A100000           - call AA2Edit.exe+2A140
+//getting tab 3 bool ptr
+//AA2Edit.exe+29427 - 8B B7 A8050000        - mov esi,[edi+000005A8]
+//inserting tab 3?
+//AA2Edit.exe+2945D - E8 DE0C0000           - call AA2Edit.exe+2A140
+//getting tab 4 bool ptr
+//AA2Edit.exe+29761 - 8B B7 B8050000        - mov esi,[edi+000005B8]
+//inserting tab 4?
+//AA2Edit.exe+29797 - E8 A4090000           - call AA2Edit.exe+2A140
+
+
+
 //if we change all these to FF, we would have all the slots covered in the bool array.
 //the game would also create more buttons, but only show the annoying 135 one
 //shit. this crashes if the last ones are changed.
@@ -442,6 +507,102 @@ AA2Edit.exe+20B12 - 8B 7B 48              - mov edi,[ebx+48]*/
 //exit (last jump) of create character button
 //AA2Edit.exe+1C4C1 - E9 97FAFFFF           - jmp AA2Edit.exe+1BF5D
 
+//many sliders that go from 0 to 100 were not properly unlocked by the frontier launcher.
+//the limiter parts look like this:
+/*
+AA2Edit.exe+20B34 - 83 F8 64              - cmp eax,64 { 100 }
+AA2Edit.exe+20B37 - 7F 09                 - jg AA2Edit.exe+20B42
+AA2Edit.exe+20B39 - 85 C0                 - test eax,eax
+AA2Edit.exe+20B3B - 7E 0C                 - jle AA2Edit.exe+20B49
+AA2Edit.exe+20B3D - 83 F8 64              - cmp eax,64 { 100 }
+AA2Edit.exe+20B40 - 7E 09                 - jle AA2Edit.exe+20B4B
+AA2Edit.exe+20B42 - B8 64000000           - mov eax,00000064 { 100 }
+AA2Edit.exe+20B47 - EB 02                 - jmp AA2Edit.exe+20B4B
+AA2Edit.exe+20B49 - 33 C0                 - xor eax,eax
+AA2Edit.exe+20B4B - 88 86 66040000        - mov[esi+00000466],al
+*/
+//the easiest way to fix it is to make the jg to an unconditional jump to after xor eax,eax:
+/*
+AA2Edit.exe+20B34 - 83 F8 64              - cmp eax,64 { 100 }
+AA2Edit.exe+20B37 - EB 12                 - jmp AA2Edit.exe+20B4B
+AA2Edit.exe+20B39 - 85 C0                 - test eax,eax
+AA2Edit.exe+20B3B - 7E 0C                 - jle AA2Edit.exe+20B49
+AA2Edit.exe+20B3D - 83 F8 64              - cmp eax,64 { 100 }
+AA2Edit.exe+20B40 - 7E 09                 - jle AA2Edit.exe+20B4B
+AA2Edit.exe+20B42 - B8 64000000           - mov eax,00000064 { 100 }
+AA2Edit.exe+20B47 - EB 02                 - jmp AA2Edit.exe+20B4B
+AA2Edit.exe+20B49 - 33 C0                 - xor eax,eax
+AA2Edit.exe+20B4B - 88 86 66040000        - mov [esi+00000466],al
+*/
+//so, since jmps are relative, its always 7F 09 -> EB 12
+//locations to look at:
+//nip:
+//AA2Edit.exe+20B37 - 7F 09                 - jg AA2Edit.exe+20B42
+//tan:
+//AA2Edit.exe+20B68 - 7F 09                 - jg AA2Edit.exe+20B73
+//pu hair:
+//AA2Edit.exe+20BA8 - 7F 09                 - jg AA2Edit.exe+20BB3
+//brow:
+//AA2Edit.exe+25BAA - 7F 09                 - jg AA2Edit.exe+25BB5
+//lips:
+//AA2Edit.exe+26D92 - 7F 09                 - jg AA2Edit.exe+26D9D
+
+//nip type and color poll (in this order)
+/*
+AA2Edit.exe+20B12 - 8B 7B 48              - mov edi,[ebx+48]
+AA2Edit.exe+20B15 - E8 8669FFFF           - call AA2Edit.exe+174A0
+AA2Edit.exe+20B1A - 88 86 64040000        - mov [esi+00000464],al
+AA2Edit.exe+20B20 - 8B 7B 4C              - mov edi,[ebx+4C]
+AA2Edit.exe+20B23 - E8 7869FFFF           - call AA2Edit.exe+174A0
+AA2Edit.exe+20B28 - 88 86 65040000        - mov [esi+00000465],al
+*/
+
+//mosaic and pub hair poll (in this order). mosaic flag is 11, pub hair flag is B
+/*
+AA2Edit.exe+20B82 - 8B 7B 5C              - mov edi,[ebx+5C]
+AA2Edit.exe+20B85 - E8 1669FFFF           - call AA2Edit.exe+174A0
+AA2Edit.exe+20B8A - 88 86 69040000        - mov [esi+00000469],al
+AA2Edit.exe+20B90 - 8B 7B 60              - mov edi,[ebx+60]
+AA2Edit.exe+20B93 - E8 0869FFFF           - call AA2Edit.exe+174A0
+AA2Edit.exe+20B98 - 88 86 5C040000        - mov [esi+0000045C],al
+*/
+
+//lip color
+/*
+AA2Edit.exe+26D7B - 8B 7D 58              - mov edi,[ebp+58]
+AA2Edit.exe+26D7E - E8 1D07FFFF           - call AA2Edit.exe+174A0
+AA2Edit.exe+26D83 - 88 83 96060000        - mov[ebx+00000696],al
+*/
+
+//this is a part of the INITDIALOG from the hair dialog
+/*AA2Edit.exe+28CE0 - 53                    - push ebx <--note: ebx is 0 here
+AA2Edit.exe+28CE1 - 8D 4C 24 48           - lea ecx,[esp+48]
+AA2Edit.exe+28CE5 - 51                    - push ecx
+AA2Edit.exe+28CE6 - 8D 56 50              - lea edx,[esi+50]
+AA2Edit.exe+28CE9 - 8B CF                 - mov ecx,edi
+AA2Edit.exe+28CEB - C6 44 24 78 02        - mov byte ptr[esp+78],02 { 2 }
+AA2Edit.exe+28CF0 - E8 4B050F00           - call AA2Edit.exe+119240 { initialises the hair list }*/
+//the function here returns a pointer of hair info into ecx. its an array of 255, one for each hair,
+//with each entry having a size of 51C. It contains information such as in which pp to find it (if at all),
+//what xx file is associated with it, and if it has a flip.
+//im gonna paste the calls for the other tabs here:
+/*AA2Edit.exe+28EBC - 6A 01                 - push 01 { 1 }
+AA2Edit.exe+28EBE - 8D 4C 24 48           - lea ecx,[esp+48]
+AA2Edit.exe+28EC2 - 51                    - push ecx
+AA2Edit.exe+28EC3 - 8B 4C 24 2C           - mov ecx,[esp+2C]
+AA2Edit.exe+28EC7 - 8D 56 54              - lea edx,[esi+54]
+AA2Edit.exe+28ECA - E8 71030F00           - call AA2Edit.exe+119240*/
+/*AA2Edit.exe+29176 - 6A 02                 - push 02 { 2 }
+AA2Edit.exe+29178 - 8D 44 24 48           - lea eax,[esp+48]
+AA2Edit.exe+2917C - 8D 56 5C              - lea edx,[esi+5C]			<-- this is curious, seems like its switched
+AA2Edit.exe+2917F - 50                    - push eax
+AA2Edit.exe+29180 - E8 BB000F00           - call AA2Edit.exe+119240*/
+/*AA2Edit.exe+294B1 - 6A 03                 - push 03 { 3 }
+AA2Edit.exe+294B3 - 8D 44 24 48           - lea eax,[esp+48]
+AA2Edit.exe+294B7 - 8D 56 58              - lea edx,[esi+58]
+AA2Edit.exe+294BA - 50                    - push eax
+AA2Edit.exe+294BB - E8 80FD0E00           - call AA2Edit.exe+119240*/
+//btw, the function has ret 8
 
 
 

@@ -4,11 +4,14 @@
 
 HWND g_edGlassesSelector = NULL;
 HWND g_udGlassesSelector = NULL;
-
+HWND g_edLipColorSelector = NULL;
+HWND g_udLipColorSelector = NULL;
 namespace {
 	bool loc_glassesButtonClicked = false;
+	bool loc_lipColorButtonClicked = false;
 	bool loc_characterLoaded = false;
 	BYTE loc_glassesslot = 0;
+	BYTE loc_lipColorSlot = 0;
 };
 
 void __cdecl InitGlassesSelector(HWND parent,HINSTANCE hInst) {
@@ -44,37 +47,42 @@ void __cdecl FacedetailsDialogNotification(FacedetailsDialogClass* internclass,H
 		HWND wnd = (HWND)lparam;
 		if (notification == BN_CLICKED) {
 			//check if the pressed button was a glasses-button
-			int nButtons = internclass->GetGlassButtonCount();
-			bool found = false;
-			for (int i = 0; i < nButtons; i++) {
-				if (wnd == internclass->GetGlassesButtonWnd(i)) {
-					found = true;
-					break;
-				}
-			}
+			bool found =
+				FindButtonInList(wnd,internclass,&FacedetailsDialogClass::GetGlassesButtonWnd,internclass->GetGlassButtonCount()) != -1;
 			if (found) {
-				//it was a glasses button, so respect that change
-				LOGPRIO(Logger::Priority::SPAM) << "Glasses button was clicked\n";
+				//it was atan button, so respect that change
+				LOGPRIO(Logger::Priority::SPAM) << "Tan button was clicked\n";
 				loc_glassesButtonClicked = true;
+			}
+			found =
+				FindButtonInList(wnd,internclass,&FacedetailsDialogClass::GetLipColorButtonWnd,internclass->GetLipColorButtonCount()) != -1;
+			if (found) {
+				//it was atan button, so respect that change
+				LOGPRIO(Logger::Priority::SPAM) << "Tan button was clicked\n";
+				loc_lipColorButtonClicked = true;
 			}
 		}
 		if (wnd == g_edGlassesSelector) {
 			if (notification == EN_UPDATE) {
-				int ret = GetEditNumber(g_edGlassesSelector);
-				LOGPRIO(Logger::Priority::SPAM) << "glasses edit got changed to " << ret << "\n";
-				bool changed = false;
-				if (ret < 0) {
-					//must not be < 0
-					ret = 0;
-					changed = true;
-				}
-				else if (ret > 255) {
-					ret = 255;
-					changed = true;
-				}
-				if (changed) {
-					SetEditNumber(g_edGlassesSelector,ret);
-				}
+				LimitEditInt(g_edGlassesSelector,0,255);
+				LOGPRIO(Logger::Priority::SPAM) << "glasses edit got changed to " << GetEditNumber(g_edGlassesSelector) << "\n";
+				internclass->SetChangeFlags();
+			}
+		}
+		else if(wnd == g_edLipColorSelector) {
+			if (notification == EN_UPDATE) {
+				LimitEditInt(g_edLipColorSelector,0,255);
+				LOGPRIO(Logger::Priority::SPAM) << "glasses edit got changed to " << GetEditNumber(g_edLipColorSelector) << "\n";
+				internclass->SetChangeFlags();
+			}
+		}
+		else if(wnd == internclass->GetLipOpacityEditWnd()) {
+			if (notification == EN_UPDATE) {
+				HWND nativeEdit = internclass->GetLipOpacityEditWnd();
+				LimitEditInt(nativeEdit,0,255);
+				int value = GetEditNumber(nativeEdit);
+				LOGPRIO(Logger::Priority::SPAM) << "lip color edit was moved to " << value << "\n";
+				internclass->SetLipOpacityGuiValue(value);
 				internclass->SetChangeFlags();
 			}
 		}
@@ -90,24 +98,17 @@ void __cdecl FacedetailsAfterDialogInit(FacedetailsDialogClass* internclass, HWN
 	x = rct.right;
 	y = rct.top;
 	xw = rct.right - rct.left,yw = rct.bottom - rct.top;
-	g_edGlassesSelector = CreateWindowExW(WS_EX_CLIENTEDGE,
-		L"EDIT",L"0",WS_CHILD | WS_VISIBLE | ES_NUMBER | ES_AUTOHSCROLL,
-		x,y,xw,yw,wnd,0,(HINSTANCE)g_AA2Base,0);
-	SendMessage(g_edGlassesSelector,WM_SETFONT,(WPARAM)g_sysFont,TRUE);
-	if(g_edGlassesSelector == NULL) {
-		int error = GetLastError();
-		LOGPRIO(Logger::Priority::ERR) << "Could not create Glasses edit box! error " << error << "\n";
-	}
-	else {
-		LOGPRIO(Logger::Priority::INFO) << "Successfully created Glasses edit with handle " << g_edGlassesSelector << "\n";
-	}
-	InitCCs(ICC_UPDOWN_CLASS);
-	g_udGlassesSelector = CreateWindowExW(0,
-		UPDOWN_CLASSW,NULL,WS_VISIBLE | WS_CHILD | UDS_ALIGNRIGHT | UDS_ARROWKEYS | UDS_SETBUDDYINT,
-		0,0,0,0,wnd,0,(HINSTANCE)g_AA2Base,0);
-	SendMessageW(g_udGlassesSelector,UDM_SETBUDDY,(WPARAM)g_edGlassesSelector,0);
-	SendMessageW(g_udGlassesSelector,UDM_SETRANGE,0,MAKELPARAM(255,0));
-
+	CreateUpDownControl(wnd,x,y,xw,yw,g_edGlassesSelector,g_udGlassesSelector);
+	
+	//lip color, put it under last button cause theres no place left
+	btnCnt = internclass->GetLipColorButtonCount();
+	lastButton = internclass->GetLipColorButtonWnd(btnCnt-1);
+	rct = GetRelativeRect(lastButton);
+	x = rct.left;
+	y = rct.top;
+	xw = rct.right - rct.left,yw = rct.bottom - rct.top;
+	y += yw;
+	CreateUpDownControl(wnd,x,y,xw,yw,g_edLipColorSelector,g_udLipColorSelector);
 }
 
 void __cdecl FacedetailsAfterInit(void* internclass) {
@@ -129,10 +130,26 @@ int __cdecl GetGlassesSelectorIndex(FacedetailsDialogClass* internclass,int guiC
 	}
 }
 
+int __cdecl GetLipColorSelectorIndex(FacedetailsDialogClass* internclass,int guiChosen) {
+	if (loc_lipColorButtonClicked) {
+		loc_lipColorButtonClicked = false;
+		LOGPRIO(Logger::Priority::SPAM) << "selecting lip color index after button click to " << guiChosen << "\n";
+		SetEditNumber(g_edLipColorSelector,guiChosen);
+		return -1;
+	}
+	else {
+		int ret = GetEditNumber(g_edLipColorSelector);
+		LOGPRIO(Logger::Priority::SPAM) << "selecting lip color index from edit to " << ret << "\n";
+		if (ret < 0 || ret > 255) ret = -1;
+		return ret;
+	}
+}
+
 void __cdecl InitFacedetailsTab(FacedetailsDialogClass* internclass,bool before) {
 	if(before) {
 		//before the call, we take note of the hair slots used
 		loc_glassesslot = internclass->GetGlassesSlot();
+		loc_lipColorSlot = internclass->GetLipColorSlot();
 		LOGPRIO(Logger::Priority::SPAM) << "glasses loaded and initialized to " << loc_glassesslot << "\n";
 	}
 	else {
@@ -140,6 +157,9 @@ void __cdecl InitFacedetailsTab(FacedetailsDialogClass* internclass,bool before)
 		BYTE newslot = internclass->GetGlassesSlot();
 		SetEditNumber(g_edGlassesSelector,loc_glassesslot);
 		internclass->SetGlassesSlot(loc_glassesslot);
+		newslot = internclass->GetLipColorSlot();
+		SetEditNumber(g_edLipColorSelector,loc_lipColorSlot);
+		internclass->SetLipColorSlot(loc_lipColorSlot);
 		LOGPRIO(Logger::Priority::SPAM) << "glasses loaded and corrected from " << newslot << "\n";
 	}
 }

@@ -15,6 +15,8 @@ namespace {
 	bool loc_bEdIgnoreChange = false;
 	int loc_changedHairDirection = 0;
 	HairDialogClass* loc_hairclass = NULL;
+
+	BYTE loc_hairExists[4][255]; //0 means doesnt exists, 1 means exists, >1 means it exsits and has a flip
 }
 
 void __cdecl InitHairSelector(HWND parent,HINSTANCE hInst) {
@@ -68,31 +70,29 @@ int __cdecl GetHairSelectorIndex(HairDialogClass* internclass, int tab,int guiCh
 		loc_bEdIgnoreChange = true;
 		SetEditNumber(g_edHairSelector,loc_chosenHairs[tab]);
 		loc_changedHairDirection = 0; //also shouldnt happen
-		if (loc_chosenHairs[tab] > 134) {
-			//always enable flip switch for these hairs
-			HWND wnd = internclass->GetFlipButtonWnd();
-			LRESULT res = EnableWindow(wnd,TRUE);
-			int error = GetLastError();
-			LOGPRIO(Logger::Priority::SPAM) << "Enabled Flip-Box because chosen hair (" <<
-				loc_chosenHairs[tab] << ") went over 134 (" << res << "," << error << ")\n";
-		}
+		//disable / enable flip switch
+		HWND wnd = internclass->GetFlipButtonWnd();
+		BOOL newstate = loc_hairExists[tab][loc_chosenHairs[tab]] > 1 ? TRUE : FALSE;
+		LRESULT res = EnableWindow(wnd,newstate);
 		return loc_chosenHairs[tab];
 	}
 	else {
 		//lets just always return our edit number for now and keep it in sync with the other numbers
 		int ret = GetEditNumber(g_edHairSelector);
+		int oldValue = loc_chosenHairs[tab];
 		LOGPRIO(Logger::Priority::SPAM) << "hair " << ret << " was selected from edit in tab " << tab << "\n";
 		loc_changedHairDirection = ret - loc_chosenHairs[tab]; //negative if newchoice < oldchoice
 		loc_chosenHairs[tab] = ret;
 		if (ret < 0 || ret > 255) ret = -1;
-		if (ret > 134) {
-			//always enable flip switch for these hairs
-			HWND wnd = internclass->GetFlipButtonWnd();
-			LRESULT res = EnableWindow(wnd,TRUE);
-			int error = GetLastError();
-			LOGPRIO(Logger::Priority::SPAM) << "Enabled Flip-Box because chosen hair (" <<
-				loc_chosenHairs[tab] << ") went over 134 (" << res << "," << error << ")\n";
+		//disable / enable flip switch
+		HWND wnd = internclass->GetFlipButtonWnd();
+		BOOL newstate = loc_hairExists[tab][loc_chosenHairs[tab]] > 1 ? TRUE : FALSE;
+		//make sure flip button is not checked if there is no flipped hair
+		if (newstate == FALSE && ret != oldValue) {
+			SendMessage(wnd,BM_SETCHECK,BST_UNCHECKED,0);
+			LOGPRIO(Logger::Priority::SPAM) << "hair flip button was unchecked because the new hair did not support it\n";
 		}
+		LRESULT res = EnableWindow(wnd,newstate);
 		return ret;
 	}
 	return -1;
@@ -237,6 +237,7 @@ int __cdecl HairDialogNotification(HairDialogClass* internclass,HWND hwndDlg,UIN
 					//edit has been changed, so draw the selected new face
 					int ret = GetEditNumber(g_edHairSelector);
 					LOGPRIO(Logger::Priority::SPAM) << "hair edit got changed to " << ret << "in tab " << loc_lastHairTab << "\n";
+					//limit to 0-255 and check for validity
 					bool changed = false;
 					if (ret < 0) {
 						//must not be < 0
@@ -247,10 +248,38 @@ int __cdecl HairDialogNotification(HairDialogClass* internclass,HWND hwndDlg,UIN
 						ret = 255;
 						changed = true;
 					}
+					else if (loc_lastHairTab >= 0 && loc_lastHairTab <= 3) { //make sure we're on a tab
+						//check whether the new hair is actually valid
+						if (!loc_hairExists[loc_lastHairTab][ret]) {
+							//its invalid, find next valid one
+							BYTE currHair = *(internclass->HairOfTab(loc_lastHairTab));
+							int direction = ret - currHair;
+							if (direction < 0) {
+								//find first valid hair before this one
+								while (!loc_hairExists[loc_lastHairTab][ret]) {
+									ret--;
+									if (ret == -1) break; //dont break the limits
+								}
+							}
+							else if (direction > 0) {
+								//find first valid hair after this one
+								while (!loc_hairExists[loc_lastHairTab][ret]) {
+									ret++;
+									if (ret == 256) break; //still, dont break the limits
+								}
+							}
+							else ret = -1; //if no direction, dont change
+							//if it actually found some valid slot, switch to this one
+							if (ret != -1 && ret != 256) {
+								changed = true;
+							}
+						}
+					}
 					if (changed) {
 						loc_bEdIgnoreChange = true;
 						SetEditNumber(g_edHairSelector,ret);
 					}
+					
 					internclass->SetHairChangeFlags(loc_lastHairTab);
 				}
 			}
@@ -337,6 +366,7 @@ void RefreshHairSelectorPosition(HairDialogClass* internclass) {
 	LOGPRIO(Logger::Priority::SPAM) << "Moved Hair edit to position (" << x << "|" << y << "), size " << xw << "x" << yw << "\n";
 }
 
+//not used anymore, got something better
 void __cdecl InvalidHairNotifier() {
 	if (loc_lastHairTab < 0 || loc_lastHairTab > 3) return;
 	//so, this method is horribly inefficient and sucks hard, but this is how im gonna do it, cause i cant find a
@@ -359,6 +389,21 @@ void __cdecl InvalidHairNotifier() {
 		//stop at 255
 		if (loc_chosenHairs[loc_lastHairTab] < 255) {
 			PostMessageW(g_AA2DialogHandles[9],HAIRMESSAGE_ADDHAIR,(WPARAM)1,0);
+		}
+	}
+}
+
+void __cdecl HairInfoNotifier(int tab,TempHairInfos* info) {
+	if(tab < 0 || tab > 3) {
+		LOGPRIO(Logger::Priority::WARN) << "Hair Info Notifier was called with invalid tab " << tab << "\n";
+	}
+	for (int i = 0; i < 255; i++) {
+		if(info[i].targetPPMask[0] == '\0') {
+			//if no pp is given, the hair was not found -> does not exist
+			loc_hairExists[tab][i] = 0;
+		}
+		else {
+			loc_hairExists[tab][i] = 1 + info[i].hasFlip;
 		}
 	}
 }

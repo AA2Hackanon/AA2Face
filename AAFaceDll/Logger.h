@@ -1,5 +1,6 @@
 #pragma once
 #include <fstream>
+#include <Windows.h>
 
 #define LOGPRIONC(prio) if(g_Logger.FilterPriority(prio)) g_Logger << prio << 
 #define LOGPRIOC(prio) if(g_Logger.FilterPriority(prio)) g_Logger << prio << __FUNCSIC __ ": " <<
@@ -49,6 +50,11 @@ public:
 			*this << "[CRITICAL ERROR] ";
 			break;
 		}
+		return *this;
+	}
+
+	Logger& operator<<(const BYTE b) {
+		*this << (int)b;
 		return *this;
 	}
 
