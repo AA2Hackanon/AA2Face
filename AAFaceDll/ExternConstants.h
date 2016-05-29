@@ -42,6 +42,8 @@ public:
 	bool HairSlotExists2(BYTE slot,int hairKind) const;
 	const BYTE* GetHairSlotExistsField(int hairKind) const;
 	HWND GetHairSlotButton(BYTE slot) const;
+	HWND GetAdjustmentSliderWnd() const;
+	HWND GetAdjustmentSliderEdit() const;
 	HWND GetFlipButtonWnd() const;
 	HWND GetHairSizeEditWnd() const;
 	int GetButtonCount() const;

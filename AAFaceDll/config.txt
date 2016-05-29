@@ -13,13 +13,14 @@ VERBOSITY SPAM
 ;	HAIR				: disables hair stuff
 ;	HAIR_SKIPINVALID	: disables the thing where the hair keeps scrolling on invalid slots.
 ;							note that this feature is based on the info given by the list files,
-;							and might therefor might view hairs as existing when they are in fact not
+;							and might therefor view hairs as existing when they are in fact not,
+;							and apparently also as missing when they are not
 ;	GLASSES				: disables glasses stuff
 ;	BODY_COLOR			: disables tan stuff
 ;	LIMITS				: disables the unlimited sliders that weren't changed by the unlocked editor
 
 DISABLE HAIR_SKIPINVALID
-DISABLE BODY_COLOR
+;DISABLE BODY_COLOR
 
 ; the minimum and maximum zoom can be changed using ZOOM [MIN/MAX] float
 ; MIN means zooming out; default value is 1.5.
