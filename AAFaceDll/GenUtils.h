@@ -11,6 +11,11 @@ bool CreateUpDownControl(HWND parent, int x,int y,int xw,int yw,_Out_ HWND& edWn
 /* makes sure the edit holds an integer out of [low,high] */
 void LimitEditInt(HWND edit,int low,int high);
 
+bool inline DirExists(const wchar_t* dir) {
+	DWORD fileAttr = GetFileAttributesW(dir);
+	return fileAttr != INVALID_FILE_ATTRIBUTES && (fileAttr & FILE_ATTRIBUTE_DIRECTORY);
+}
+
 /*
  * trys to find the button using the given getButtonFunction and the given limits.
  * returns index it found  the button, or -1 if it didnt.

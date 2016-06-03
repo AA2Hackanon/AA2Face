@@ -14,6 +14,7 @@ public:
 			BODYCOLOR_ADDTAN,BODYCOLOR_SETTAN,
 			ZOOM_ADD, ZOOM_SET,
 			TILT_ADD, TILT_SET,
+			POSE_ADD, POSE_APPLY,
 			
 			NOP
 		};
@@ -44,6 +45,11 @@ public:
 			return isVirt == rhs.isVirt && key == rhs.key && ctrl == rhs.ctrl && alt == rhs.alt && shift == rhs.shift;
 		}
 	};
+	enum Disable {
+		DISABLE_GENERAL = 1,DISABLE_FACE = 2,DISABLE_HAIR = 4,DISABLE_HAIR_SKIPINVALID = 8,
+		DISABLE_FACEDETAILS = 0x10,DISABLE_BODY_COLOR = 0x20,DISABLE_LIMITS = 0x40,
+		DISABLE_PRE_BACKUP = 0x80, DISABLE_POST_BACKUP = 0x100, DISABLE_BACKUP_UNIQUE = 0x200
+	};
 private:
 	struct Keywords {
 		const char* key;
@@ -57,13 +63,7 @@ public:
 	const std::vector<Hotkey>& GetHotkeys() const;
 	float GetZoomMin() const;
 	float GetZoomMax() const;
-	bool GetDisabledGeneral() const;
-	bool GetDisabledGlasses() const;
-	bool GetDisabledHair() const;
-	bool GetDisabledFace() const;
-	bool GetDisabledHairSkipInvalid() const;
-	bool GetDisabledBodycolor() const;
-	bool GetDisabledLimits() const;
+	bool IsDisabled(Disable check) const;
 private:
 	void GetLine(char* str,char** nextLine);
 	char* GetToken(char* str, char** nextLine);
@@ -77,8 +77,7 @@ private:
 private:
 	std::vector<Hotkey> hotkeys;
 	float zoomMin,zoomMax;
-	bool hookGeneral,hookGlasses,hookHair,hookFace,hookBodycolor;
-	bool hookInvalidHair,hookLimits;
+	int disableFlags;
 	Logger::Priority logPrio;
 	static const Keywords Commands[];
 

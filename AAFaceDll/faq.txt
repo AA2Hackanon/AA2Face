@@ -1,0 +1,28 @@
+Q: When i try to start AAFace.exe, it complains about missing MSVCRxx or VCRUNTIMEyyy (probably 140) missing
+A: you need the vc++2015 redistributable packages. they are the c++ standard library from microsoft
+	and are needed for every c++ program compiled with visual studio. Usually these would be installed
+	with one of your other games, but 2015 is pretty new still, and game development takes time.
+	you can get them here: https://www.microsoft.com/en-us/download/details.aspx?id=48145&751be11f-ede8-5a0c-058c-2ee190a24fa6=True
+	note: if you are on a 64-bit system, for some reason, you need both the 32-bit and the 64-bit version. no idea why, shouldnt be that way.
+
+Q: Is this the new version? Where can i get the latest version?
+A: There is a github for this project: https://github.com/AA2Hackanon/AA2Face/releases
+
+Q: When starting the editor using AAFace, it sometimes crashes / certain features dont quite work
+A: Make sure you started AAFace.exe at the first screen, with the start button and the picture of default girl.
+	if you start it after the preview window etc are allready loaded, some injected code might not be executed
+	and things will go wrong
+
+Q: I can choose only a nipple type >3 or only a nipple color >7, but when i do both, nothing happens. How come?
+A: Nipple color and type are actually not as seperated as the buttons may make you believe. There is a single image
+	file for every nipple and color combination. When modders made additional types, they did not know that and what
+	additional colors may be introduced later and could not possibly make images for these colors, and vice versa.
+	Yes, that is dumb. It should be image + color.
+
+Q: Why do the random buttons still only choose normal slots?
+A: To modify the random buttons, i would have to know exactly which slots exists and which not. While the editor
+	techincally has ways to figure that out, it only does that for the slots it actually displays, and making him
+	do it for other slots as well is awfully complicated and time consuming. 
+
+Q: The list.txt file is tedious. Why dont you use the Override.xml system from ReiEdit?
+A: if you are willing to write a XML parser and put it in the program, you are more than willing to do so.

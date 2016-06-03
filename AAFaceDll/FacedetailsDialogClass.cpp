@@ -22,7 +22,7 @@ BYTE FacedetailsDialogClass::GetGlassesSlot() const {
 BYTE FacedetailsDialogClass::GetLipColorSlot() const {
 	return *((BYTE*)GetChoiceDataBuffer() + 0x696);
 }
-void FacedetailsDialogClass::SetLipColorSlot(BYTE slot) const {
+void FacedetailsDialogClass::SetLipColorSlot(BYTE slot) {
 	*((BYTE*)GetChoiceDataBuffer() + 0x696) = slot;
 }
 

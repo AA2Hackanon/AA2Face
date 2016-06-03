@@ -123,6 +123,7 @@
   <ItemGroup>
     <ClCompile Include="BaseDialogClass.cpp" />
     <ClCompile Include="BodycolorDialogClass.cpp" />
+    <ClCompile Include="BoundUpDownControl.cpp" />
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="ExternConstants.cpp" />
     <ClCompile Include="FacedetailsDialogClass.cpp" />
@@ -141,6 +142,7 @@
     <ClCompile Include="InjGeneral.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BoundUpDownControl.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="ExternConstants.h" />
     <ClInclude Include="GenUtils.h" />
@@ -156,6 +158,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="config.txt" />
+    <Text Include="faq.txt" />
     <Text Include="items.txt" />
     <Text Include="readme.txt" />
   </ItemGroup>

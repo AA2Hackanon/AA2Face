@@ -90,6 +90,9 @@
     <ClCompile Include="FaceDialogClass.cpp">
       <Filter>Source Files\ExternClasses</Filter>
     </ClCompile>
+    <ClCompile Include="BoundUpDownControl.cpp">
+      <Filter>Source Files\Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternConstants.h">
@@ -128,6 +131,9 @@
     <ClInclude Include="InjSystem.h">
       <Filter>Header Files\Injections</Filter>
     </ClInclude>
+    <ClInclude Include="BoundUpDownControl.h">
+      <Filter>Header Files\Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="config.txt">
@@ -137,6 +143,9 @@
       <Filter>Source Files\configs</Filter>
     </Text>
     <Text Include="readme.txt">
+      <Filter>Source Files\configs</Filter>
+    </Text>
+    <Text Include="faq.txt">
       <Filter>Source Files\configs</Filter>
     </Text>
   </ItemGroup>

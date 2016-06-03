@@ -12,7 +12,8 @@ namespace {
 	int loc_chosenHairs[4] = { -1,-1,-1,-1 };
 	int loc_chosenFlips[4] = { 0, 0, 0, 0 };
 	bool loc_hairButtonClicked = false;
-	bool loc_bUdHairChanged = false;
+	bool loc_hairEditChanged = false;
+	bool loc_bUdHairChanged = false; //workaround cause ud controls a shit
 	bool loc_bEdIgnoreChange = false;
 	int loc_changedHairDirection = 0;
 	HairDialogClass* loc_hairclass = NULL;
@@ -63,7 +64,7 @@ int __cdecl GetHairSelectorIndex(HairDialogClass* internclass, int tab,int guiCh
 		loc_changedHairDirection = 0; //shouldnt happen anyway
 		return -1;
 	}
-	else if (tab != loc_lastHairTab) {
+	else if(tab != loc_lastHairTab) {
 		LOGPRIO(Logger::Priority::SPAM) << "hair tab switch from " << loc_lastHairTab << " to " << tab << "; "
 			"loading hair " << loc_chosenHairs[tab] << "\n";
 		loc_lastHairTab = tab;
@@ -71,9 +72,9 @@ int __cdecl GetHairSelectorIndex(HairDialogClass* internclass, int tab,int guiCh
 		loc_bEdIgnoreChange = true;
 		SetEditNumber(g_edHairSelector,loc_chosenHairs[tab]);
 		loc_changedHairDirection = 0; //also shouldnt happen
-		//disable / enable flip switch
-		if(loc_chosenHairs[tab] > 134) {
-			if (g_config.GetDisabledHairSkipInvalid()) {
+									  //disable / enable flip switch
+		if (loc_chosenHairs[tab] > 134) {
+			if (g_config.IsDisabled(Config::DISABLE_HAIR_SKIPINVALID)) {
 				//always enable all of it
 				EnableWindow(internclass->GetFlipButtonWnd(),TRUE);
 				EnableWindow(internclass->GetAdjustmentSliderEdit(),TRUE);
@@ -90,8 +91,8 @@ int __cdecl GetHairSelectorIndex(HairDialogClass* internclass, int tab,int guiCh
 		}
 		return loc_chosenHairs[tab];
 	}
-	else {
-		//lets just always return our edit number for now and keep it in sync with the other numbers
+	else if(loc_hairEditChanged) {
+		loc_hairEditChanged = false;
 		int ret = GetEditNumber(g_edHairSelector);
 		int oldValue = loc_chosenHairs[tab];
 		LOGPRIO(Logger::Priority::SPAM) << "hair " << ret << " was selected from edit in tab " << tab << "\n";
@@ -100,7 +101,7 @@ int __cdecl GetHairSelectorIndex(HairDialogClass* internclass, int tab,int guiCh
 		if (ret < 0 || ret > 255) ret = -1;
 		//disable / enable flip switch
 		if (loc_chosenHairs[tab] > 134) {
-			if (g_config.GetDisabledHairSkipInvalid()) {
+			if (g_config.IsDisabled(Config::DISABLE_HAIR_SKIPINVALID)) {
 				//always enable all of it
 				EnableWindow(internclass->GetFlipButtonWnd(),TRUE);
 				EnableWindow(internclass->GetAdjustmentSliderEdit(),TRUE);
@@ -246,7 +247,7 @@ int __cdecl HairDialogNotification(HairDialogClass* internclass,HWND hwndDlg,UIN
 		}
 		else if (wnd == g_edHairSelector) {
 			if(loc_lastHairTab < 0 || loc_lastHairTab > 3) {
-				LOGPRIO(Logger::Priority::SPAM) << "hair edit got a message, but tab is invalid with " << loc_lastHairTab << "\n";
+				LOGPRIO(Logger::Priority::ERR) << "hair edit got a message, but tab is invalid with " << loc_lastHairTab << "\n";
 				return FALSE;
 			}
 			if (notification == EN_UPDATE) {
@@ -280,10 +281,13 @@ int __cdecl HairDialogNotification(HairDialogClass* internclass,HWND hwndDlg,UIN
 						//check whether the new hair is actually valid
 						if(ret <= 134 && IsWindowEnabled(internclass->GetHairSlotButton(ret)) == TRUE) {
 							//if its a button that exists, just click it
-							SendMessage(internclass->GetHairSlotButton(ret),BM_CLICK,BST_CHECKED,0);
-							applyChange = false;
+							BYTE currHair = *(internclass->HairOfTab(loc_lastHairTab));
+							SendMessage(internclass->GetHairSlotButton(currHair),BM_SETCHECK,BST_UNCHECKED,0);
+							SendMessage(internclass->GetHairSlotButton(ret),BM_SETCHECK,BST_CHECKED,0);
+							//SendMessage(internclass->GetHairSlotButton(ret),BM_CLICK,BST_CHECKED,0);
+							//applyChange = false;
 						}
-						if (g_config.GetDisabledHairSkipInvalid() && !loc_hairExists[loc_lastHairTab][ret]) {
+						if (g_config.IsDisabled(Config::DISABLE_HAIR_SKIPINVALID) && !loc_hairExists[loc_lastHairTab][ret]) {
 							//its invalid, find next valid one
 							BYTE currHair = *(internclass->HairOfTab(loc_lastHairTab));
 							int direction = ret - currHair;
@@ -313,6 +317,7 @@ int __cdecl HairDialogNotification(HairDialogClass* internclass,HWND hwndDlg,UIN
 						SetEditNumber(g_edHairSelector,ret);
 					}
 					if(applyChange) {
+						loc_hairEditChanged = true;
 						internclass->SetHairChangeFlags(loc_lastHairTab);
 					}
 				}

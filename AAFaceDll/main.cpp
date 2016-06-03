@@ -12,29 +12,30 @@ BOOL WINAPI DllMain(
 {
 	if(fdwReason == DLL_PROCESS_ATTACH) {
 		//config:
-		g_config = Config("config.txt");
+		g_config = Config("AAFace\\config.txt");
 		ExternInit();
 		InjectionsInit();
 		//change calls in code to ours
 
-		if(!g_config.GetDisabledGeneral()) {
+		if(!g_config.IsDisabled(Config::DISABLE_GENERAL)) {
 			HookGeneral();
 		}
-		if(!g_config.GetDisabledFace()) {
+		if(!g_config.IsDisabled(Config::DISABLE_FACE)) {
 			HookFace();
 		}
-		if(!g_config.GetDisabledHair()) {
+		if(!g_config.IsDisabled(Config::DISABLE_HAIR)) {
 			HookHair();
 		}
-		if(!g_config.GetDisabledGlasses()) {
+		if(!g_config.IsDisabled(Config::DISABLE_FACEDETAILS)) {
 			HookFacedetails();
 		}
-		if(!g_config.GetDisabledBodycolor()) {
+		if(!g_config.IsDisabled(Config::DISABLE_BODY_COLOR)) {
 			HookBodycolor();
 		}
-		if(!g_config.GetDisabledLimits()) {
+		if(!g_config.IsDisabled(Config::DISABLE_LIMITS)) {
 			HookLimits();
 		}
+		HookSystem();
 		
 		
 		//HookSystem();

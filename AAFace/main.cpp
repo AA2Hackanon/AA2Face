@@ -4,7 +4,7 @@
 
 #pragma comment( lib, "psapi.lib" )
 
-#pragma packed(1)
+#pragma pack(1)
 struct LoadfuncParam {
 	HMODULE(*LoadLibraryPtr)(LPCSTR);
 	void(*GetLastErrorPtr)();
@@ -93,12 +93,43 @@ int CALLBACK WinMain(
 		return 0;
 	}
 	else if(privSuc == 0) {
-		MessageBox(NULL,"Could not get all rights. Injection might fail\r\n"
-			"(just dont be surprised if it fails.)","Warning",MB_ICONWARNING);
+		/*MessageBox(NULL,"Could not get all rights. Injection might fail\r\n"
+			"(just dont be surprised if it fails.)","Warning",MB_ICONWARNING);*/
+	}
+
+	if(lpCmdLine[0] != '\0') {
+		//we have a command line
+		int length = strlen(lpCmdLine);
+		if(length < 7 || strncmp(lpCmdLine, "start", 5) != 0) {
+			MessageBox(NULL,"Command line parameter unknown. Valid parameter: start <path>","Error",MB_ICONERROR);
+			return 0;
+		}
+		char* path = lpCmdLine + 6;
+		if(GetFileAttributes(path) == INVALID_FILE_ATTRIBUTES && GetLastError()==ERROR_FILE_NOT_FOUND) {
+			char errorMsg[512] = {"File does not exist: "};
+			strcat_s(errorMsg,512,path);
+			MessageBox(NULL,errorMsg,"Error",MB_ICONERROR);
+			return 0;
+		}
+		char* file;
+		char fullPath[MAX_PATH];
+		GetFullPathName(path,MAX_PATH,fullPath,&file);
+		if (file > fullPath) *(file-1) = '\0';
+		STARTUPINFO sInfo = {0};
+		sInfo.cb = sizeof(sInfo);
+		PROCESS_INFORMATION pInfo = {0};
+		BOOL result = CreateProcess(path,file,NULL,NULL,FALSE,NORMAL_PRIORITY_CLASS,NULL,fullPath,&sInfo,&pInfo);
+		if(result == FALSE) {
+			Error::SetLastError(GetLastError(),"CreateProcess");
+			Error::PrintLastError("Failed to Create Process:");
+		}
+		CloseHandle(pInfo.hProcess);
+		CloseHandle(pInfo.hThread);
+		Sleep(500); //half a second should be enough
 	}
 
 	const char name[] = "AA2Edit.exe";
-	const char dllName[] = "AAFaceDll.dll";
+	const char dllName[] = "AAFace\\AAFaceDll.dll";
 	DWORD* procBuffer = new DWORD[2048];
 	DWORD nProcs;
 	DWORD procId = (DWORD)-1;

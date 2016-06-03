@@ -15,12 +15,17 @@ VERBOSITY SPAM
 ;							note that this feature is based on the info given by the list files,
 ;							and might therefor view hairs as existing when they are in fact not,
 ;							and apparently also as missing when they are not
-;	GLASSES				: disables glasses stuff
-;	BODY_COLOR			: disables tan stuff
+;	FACEDETAILS			: disables facedetail edit boxes
+;	BODY_COLOR			: disables body color edit boxes
 ;	LIMITS				: disables the unlimited sliders that weren't changed by the unlocked editor
+;	PRE_BACKUP			: disables automatic backup of the current card when saving
+;	POST_BACKUP			: disables automatic backup of the new card, before the old cardface was reapplied
+;	BACKUP_UNIQUE		: on default, backups will be seeded with a timestamp to assure that they are unique.
+;							if this is disabled, there will only be up to 2 backups per card (pre, post)
 
 DISABLE HAIR_SKIPINVALID
-;DISABLE BODY_COLOR
+DISABLE POST_BACKUP
+DISABLE BACKUP_UNIQUE
 
 ; the minimum and maximum zoom can be changed using ZOOM [MIN/MAX] float
 ; MIN means zooming out; default value is 1.5.
@@ -74,6 +79,8 @@ ZOOM MAX 0.01 ; default is 0.1
 ; 	     ZOOM_SET		: sets zoom to float parameter
 ;	     TILT_ADD		: tilts the view by fparam (values from 0 to 6.28)
 ;	     TILT_SET		: sets tilt to fparam (values from 0 to 6.28)
+;		 POSE_ADD		: add iparam to the current pose
+;		 POSE_APPLY		: apply current pose, as if the apply button was clicked
 ;	     NOP			: does nothing. originally supposed to be able to overwrite
 ;							default keys, but i ended up using accels for easy hold-key-behavour,
 ;							so that doesnt work now
@@ -107,3 +114,10 @@ KEY CONTEXT:ACTIVE:DIALOG_HAIR KEYVAL:4B MOD:CTRL FUNCTION:HAIR_SIZEADD PARAM:IN
 
 ;ascii test
 KEY CONTEXT:ALL KEYVAL:ASCII:3D FUNCTION:HAIR_FLIP
+
+;pose scroll keys
+KEY CONTEXT:ACTIVE:DIALOG_SYSTEM KEYVAL:57 MOD:SHIFT FUNCTION:POSE_ADD PARAM:INT:1	;W
+KEY CONTEXT:ACTIVE:DIALOG_SYSTEM KEYVAL:57 MOD:SHIFT FUNCTION:POSE_APPLY
+
+KEY CONTEXT:ACTIVE:DIALOG_SYSTEM KEYVAL:53 MOD:SHIFT FUNCTION:POSE_ADD PARAM:INT:-1	;S
+KEY CONTEXT:ACTIVE:DIALOG_SYSTEM KEYVAL:53 MOD:SHIFT FUNCTION:POSE_APPLY

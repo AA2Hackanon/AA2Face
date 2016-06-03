@@ -1,11 +1,22 @@
 #pragma once
 #include <Windows.h>
 #include "Injections.h"
+#include "BoundUpDownControl.h"
 
-extern HWND g_edGlassesSelector;
-extern HWND g_udGlassesSelector;
-extern HWND g_edLipColorSelector;
-extern HWND g_udLipColorSelector;
+extern BoundUpDownControl<FacedetailsDialogClass,
+							&FacedetailsDialogClass::GetGlassesButtonWnd,
+							&FacedetailsDialogClass::GetGlassButtonCount,
+							&FacedetailsDialogClass::GetGlassesSlot,
+							&FacedetailsDialogClass::SetGlassesSlot,
+							&FacedetailsDialogClass::SetChangeFlags>
+	g_budGlasses;
+extern BoundUpDownControl<FacedetailsDialogClass,
+							&FacedetailsDialogClass::GetLipColorButtonWnd,
+							&FacedetailsDialogClass::GetLipColorButtonCount,
+							&FacedetailsDialogClass::GetLipColorSlot,
+							&FacedetailsDialogClass::SetLipColorSlot,
+							&FacedetailsDialogClass::SetChangeFlags>
+	g_budLipColor;
 
 extern "C" void __cdecl InitFacedetailsTab(FacedetailsDialogClass* internclass,bool before);
 extern "C" void __cdecl InitGlassesSelector(HWND parent,HINSTANCE hInst);

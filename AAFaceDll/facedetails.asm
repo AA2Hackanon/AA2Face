@@ -75,7 +75,7 @@ facedetails_hooked_dialog_proc_afterinit:
 	mov eax, [g_AA2Base]
 	add eax, 263F0h
 	call eax
-	;since our outer function used ebp for stack reference and oddly anded esp, we have can use ebp to access its parameters
+	;since our outer function used ebp for stack reference and oddly anded esp, we can use ebp to access its parameters
 	push [ebp+8] ;ebp+8 is the first parameter, so the hwnd
 	push edi
 	call FacedetailsAfterDialogInit

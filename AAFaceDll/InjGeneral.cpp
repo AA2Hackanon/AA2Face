@@ -161,12 +161,20 @@ namespace {
 			SendMessageW(g_AA2DialogHandles[8],FACEDETAILSMESSAGE_SETGLASSES,(WPARAM)keyfunc.iparam,0);
 			break;
 		case Config::Hotkey::BODYCOLOR_ADDTAN:
-			if (g_AA2DialogHandles[3] == NULL) break;
+			if (g_AA2DialogHandles[8] == NULL) break;
 			SendMessageW(g_AA2DialogHandles[8],BODYCOLORMESSAGE_ADDTAN,(WPARAM)keyfunc.iparam,0);
 			break;
 		case Config::Hotkey::BODYCOLOR_SETTAN:
-			if (g_AA2DialogHandles[3] == NULL) break;
+			if (g_AA2DialogHandles[8] == NULL) break;
 			SendMessageW(g_AA2DialogHandles[8],BODYCOLORMESSAGE_SETTAN,(WPARAM)keyfunc.iparam,0);
+			break;
+		case Config::Hotkey::POSE_ADD:
+			if (g_AA2DialogHandles[0] == NULL) break;
+			SendMessageW(g_AA2DialogHandles[0],POSEMESSAGE_ADDPOSE,(WPARAM)keyfunc.iparam,0);
+			break;
+		case Config::Hotkey::POSE_APPLY:
+			if (g_AA2DialogHandles[0] == NULL) break;
+			SendMessageW(g_AA2DialogHandles[0],POSEMESSAGE_APPLYPOSE,0,0);
 			break;
 		case Config::Hotkey::ZOOM_ADD:
 			if (g_AA2MainWndHandle == NULL) break;

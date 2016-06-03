@@ -70,7 +70,7 @@ public:
 	BYTE GetGlassesSlot() const;
 	void SetGlassesSlot(BYTE slot);
 	BYTE GetLipColorSlot() const;
-	void SetLipColorSlot(BYTE slot) const;
+	void SetLipColorSlot(BYTE slot);
 	BYTE GetLipOpacityValue() const;
 	void SetLipOpacityValue(BYTE value);
 	HWND GetGlassesButtonWnd(BYTE n) const;
@@ -503,6 +503,12 @@ AA2Edit.exe+20B12 - 8B 7B 48              - mov edi,[ebx+48]*/
 //AA2Edit.exe+1BAD0 - 8B 44 24 08           - mov eax,[esp+08]
 //AA2Edit.exe+1BAD4 - 3D 11010000           - cmp eax,00000111
 
+//call of initdialog handler
+//AA2Edit.exe+1BAE9 - 56                    - push esi
+//AA2Edit.exe+1BAEA - 8B F1                 - mov esi,ecx
+//AA2Edit.exe+1BAEC - E8 FFFCFFFF           - call AA2Edit.exe+1B7F0
+
+
 //last call of (successful) open file dialog click:
 //AA2Edit.exe+1C26C - E8 9F73FEFF           - call AA2Edit.exe+3610
 
@@ -608,6 +614,7 @@ AA2Edit.exe+294BB - E8 80FD0E00           - call AA2Edit.exe+119240*/
 
 
 
+
 //misc:
 //AA2Edit.exe+196CA7 - D9 82 88010000        - fld dword ptr[edx+00000188]
 //AA2Edit.exe+196CE0 - D9 82 8C010000        - fld dword ptr[edx+0000018C]
@@ -621,3 +628,93 @@ push AA2Edit.exe+344F40
 lots of carrying
 [edx+188] / [edx+18C]
 */
+
+//opens file for saving
+/*AA2Edit.exe+1261C0 - 51                    - push ecx
+AA2Edit.exe+1261C1 - 57                    - push edi
+AA2Edit.exe+1261C2 - 6A 00                 - push 00 { 0 }
+AA2Edit.exe+1261C4 - 68 80000000           - push 00000080 { 128 }
+AA2Edit.exe+1261C9 - 6A 02                 - push 02 { 2 }
+AA2Edit.exe+1261CB - 6A 00                 - push 00 { 0 }
+AA2Edit.exe+1261CD - 6A 02                 - push 02 { 2 }
+AA2Edit.exe+1261CF - 68 00000040           - push 40000000 { 2.00 }
+AA2Edit.exe+1261D4 - 50                    - push eax
+AA2Edit.exe+1261D5 - FF 15 B041C600        - call dword ptr [AA2Edit.exe+2C41B0] { ->kernel32.CreateFileW }
+*/
+
+//closes it again
+/*AA2Edit.exe+126209 - 57                    - push edi
+AA2Edit.exe+12620A - FF 15 8441C600        - call dword ptr [AA2Edit.exe+2C4184] { ->kernel32.CloseHandle }
+*/
+
+//function that reopens a character, ecx is cloth state (0 = nude, 1 = clothed, 2 = half off etc)
+/*
+AA2Edit.exe+332E9 - 51                    - push ecx
+AA2Edit.exe+332EA - 8B CB                 - mov ecx,ebx
+AA2Edit.exe+332EC - FF D2                 - call edx
+*/
+
+//al contains the outfit that is to be shown (0 = schoool, 1 = sport, 2 = bath, 3 = club)
+/*AA2Edit.exe+10059F - 8A 43 44              - mov al,[ebx+44]
+AA2Edit.exe+1005A2 - 8B 73 28              - mov esi,[ebx+28]
+...
+AA2Edit.exe+1005D3 - 8A 10                 - mov dl,[eax]
+AA2Edit.exe+1005D5 - 89 44 24 38           - mov [esp+38],eax { writes pointer to struct that contains cloth slot to
+wear (dword ptr [eax] = slot). note that chaning this slot will change clothes when saved. note that merely changing
+dl will not suffice, [eax] needs to be changed temporarily
+}
+*/
+
+//directly before the shirt and legs are opened. ebp+8 is cloth state from above
+/*AA2Edit.exe+1006DA - 89 44 24 30           - mov[esp+30],eax
+AA2Edit.exe+1006DE - 8B FF                 - mov edi,edi*/
+
+//the test is the first instruction to look at the skirt
+/*AA2Edit.exe+10190C - E8 5F9D0100           - call AA2Edit.exe+11B670			: 1 parameter, no thiscall
+AA2Edit.exe+101911 - F6 45 08 01           - test byte ptr [ebp+08],01 { 1 }
+*/
+
+//the first instruction to stop looking at the skirt
+/*AA2Edit.exe+101C29 - 8B 43 30              - mov eax,[ebx+30]
+AA2Edit.exe+101C2C - 8B 40 28              - mov eax,[eax+28]*/
+
+//this part is particularily interisting, [edi] is the cloth part to display.
+//clothes with index >3 are handled specially, and the ones below _do_not_consider_body_thickness.
+//if i make the jg to a jmp, it will consider them on other clothes as well. that would be better.
+/*AA2Edit.exe+1006FB - 83 3F 03              - cmp dword ptr [edi],03 { 3 }
+AA2Edit.exe+1006FE - 0F8F 87000000         - jg AA2Edit.exe+10078B { specialy handleded clothes?*/
+//to
+/*AA2Edit.exe+1006FE - E9 88000000           - jmp AA2Edit.exe+10078B
+AA2Edit.exe+100703 - 90                    - nop */
+
+
+//
+//pose-cancelation: all of the comparisions have to be true, then the last call,
+//taking al = animation as a parameter, will play that animation
+/*AA2Edit.exe+33BEE - 80 7C 24 16 00        - cmp byte ptr [esp+16],00 { 0 }
+AA2Edit.exe+33BF3 - 74 28                 - je AA2Edit.exe+33C1D
+AA2Edit.exe+33BF5 - 32 D2                 - xor dl,dl
+AA2Edit.exe+33BF7 - 8B CB                 - mov ecx,ebx
+AA2Edit.exe+33BF9 - E8 22230000           - call AA2Edit.exe+35F20
+AA2Edit.exe+33BFE - 84 C0                 - test al,al
+AA2Edit.exe+33C00 - 75 1B                 - jne AA2Edit.exe+33C1D
+AA2Edit.exe+33C02 - 38 54 24 1B           - cmp [esp+1B],dl
+AA2Edit.exe+33C06 - 75 15                 - jne AA2Edit.exe+33C1D
+AA2Edit.exe+33C08 - 8B FB                 - mov edi,ebx
+AA2Edit.exe+33C0A - E8 A1230000           - call AA2Edit.exe+35FB0
+*/
+
+//inside the pose apply function, this jmp contains it to 0-3 poses.
+//AA2Edit.exe+35FD0 - 83 F8 03              - cmp eax,03 { 3 }
+//AA2Edit.exe+35FD3 - 0F87 D0000000         - ja AA2Edit.exe+360A9
+//..
+//AA2Edit.exe+3600B - B8 03000000           - mov eax,00000003 { 3 }
+//AA2Edit.exe+36010 - 8B 8E 74C30100        - mov ecx,[esi+0001C374]
+//the last jump of the switch ends at the eax,3 (for some retarded reason),
+//i have to make it jump after that instead, like this
+/*AA2Edit.exe+35FEA - 77 24                 - ja AA2Edit.exe+36010
+AA2Edit.exe+35FEC - 90                    - nop
+AA2Edit.exe+35FED - 90                    - nop
+AA2Edit.exe+35FEE - 90                    - nop
+AA2Edit.exe+35FEF - 90                    - nop*/
+
