@@ -12,6 +12,7 @@ HWND g_edSystemPose = NULL;
 HWND g_udSystemPose = NULL;
 HWND g_btSystemPose = NULL;
 HWND g_cbSystemLockPose = NULL;
+HWND g_cbSystemEyeTrack = NULL;
 
 namespace {
 	void* loc_barClass = NULL;
@@ -214,15 +215,18 @@ void __cdecl SystemDialogAfterDialogInit(void* internclass,HWND wnd) {
 	y += g_SystemClothesGui.GetSizeY() + 10;
 
 	g_gbSystemPose = CreateWindowExW(0,L"BUTTON",L"Pose",WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
-		x,y,310,50,wnd,0,(HINSTANCE)g_AA2Base,0);
+		x,y,410,50,wnd,0,(HINSTANCE)g_AA2Base,0);
 	SendMessage(g_gbSystemPose,WM_SETFONT,(WPARAM)font,TRUE);;
 	CreateUpDownControl(wnd,x+10,y+15,45,25,g_edSystemPose,g_udSystemPose);
 	SendMessage(g_edSystemPose,WM_SETFONT,(WPARAM)font,TRUE);
 	g_btSystemPose = CreateWindowExW(0,L"BUTTON",L"Change Pose",WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
 		x+60,y+15,100,25,wnd,0,(HINSTANCE)g_AA2Base,0);
 	SendMessage(g_btSystemPose,WM_SETFONT,(WPARAM)font,TRUE);
+	g_cbSystemEyeTrack = CreateWindowExW(0,L"BUTTON",L"Eye Tracking",WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_AUTOCHECKBOX,
+		x+170,y+15,100,25,wnd,0,(HINSTANCE)g_AA2Base,0);
+	SendMessage(g_cbSystemEyeTrack,WM_SETFONT,(WPARAM)font,TRUE);
 	g_cbSystemLockPose = CreateWindowExW(0,L"BUTTON",L"No Default Stance",WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_AUTOCHECKBOX,
-		x+170,y+15,130,25,wnd,0,(HINSTANCE)g_AA2Base,0);
+		x+270,y+15,130,25,wnd,0,(HINSTANCE)g_AA2Base,0);
 	SendMessage(g_cbSystemLockPose,WM_SETFONT,(WPARAM)font,TRUE);
 }
 
@@ -503,4 +507,8 @@ int __cdecl GetPlayPosePosition() {
 		return -2; //-2 means skip entirely
 	}
 	return -1; //-1 means do normally
+}
+
+int __cdecl GetEyeTrackState() {
+	return SendMessageW(g_cbSystemEyeTrack,BM_GETCHECK,0,0) == BST_CHECKED ? 1 : 0;
 }

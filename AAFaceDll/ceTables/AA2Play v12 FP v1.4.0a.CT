@@ -1,0 +1,831 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="19">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>0</ID>
+      <Description>"AA2Play v12 FP v1.4.0a.exe+290FA2 crashes"</Description>
+      <LastState Value="" RealAddress="00000000"/>
+      <GroupHeader>1</GroupHeader>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>1</ID>
+      <Description>"AA2Play v12 FP v1.4.0a.exe+6519 enum window proc that apparently crashes the game"</Description>
+      <LastState Value="" RealAddress="00000000"/>
+      <GroupHeader>1</GroupHeader>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>2</ID>
+      <Description>"Auto Assemble script"</Description>
+      <LastState/>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+
+[DISABLE]
+
+//NOTES ON CRASH FIX:
+/*
+ Apparently this maker has a problem on startup in funcion:
+AA2Play v12 FP v1.4.0a.exe+64D0 - 81 EC 04020000        - sub esp,00000204 { 516 }
+AA2Play v12 FP v1.4.0a.exe+64D6 - A1 A03A5B01           - mov eax,["AA2Play v12 FP v1.4.0a.exe"+363AA0] { [622EDAA4] }
+AA2Play v12 FP v1.4.0a.exe+64DB - 33 C4                 - xor eax,esp
+AA2Play v12 FP v1.4.0a.exe+64DD - 89 84 24 00020000     - mov [esp+00000200],eax
+AA2Play v12 FP v1.4.0a.exe+64E4 - 56                    - push esi
+AA2Play v12 FP v1.4.0a.exe+64E5 - 8B B4 24 0C020000     - mov esi,[esp+0000020C]
+AA2Play v12 FP v1.4.0a.exe+64EC - 57                    - push edi
+AA2Play v12 FP v1.4.0a.exe+64ED - 8B BC 24 14020000     - mov edi,[esp+00000214]
+AA2Play v12 FP v1.4.0a.exe+64F4 - 33 C0                 - xor eax,eax
+AA2Play v12 FP v1.4.0a.exe+64F6 - 68 FE010000           - push 000001FE { 510 }
+AA2Play v12 FP v1.4.0a.exe+64FB - 50                    - push eax
+AA2Play v12 FP v1.4.0a.exe+64FC - 8D 4C 24 12           - lea ecx,[esp+12]
+AA2Play v12 FP v1.4.0a.exe+6500 - 51                    - push ecx
+AA2Play v12 FP v1.4.0a.exe+6501 - 66 89 44 24 14        - mov [esp+14],ax
+AA2Play v12 FP v1.4.0a.exe+6506 - E8 A5932800           - call "AA2Play v12 FP v1.4.0a.exe"+28F8B0 { -&gt;AA2Play v12 FP v1.4.0a.exe+28F8B0 }
+AA2Play v12 FP v1.4.0a.exe+650B - 83 C4 0C              - add esp,0C { 12 }
+AA2Play v12 FP v1.4.0a.exe+650E - 68 00010000           - push 00000200 { 512 }
+AA2Play v12 FP v1.4.0a.exe+6513 - 8D 54 24 0C           - lea edx,[esp+0C]
+AA2Play v12 FP v1.4.0a.exe+6517 - 52                    - push edx
+AA2Play v12 FP v1.4.0a.exe+6518 - 56                    - push esi
+AA2Play v12 FP v1.4.0a.exe+6519 - FF 15 64345301        - call dword ptr ["AA2Play v12 FP v1.4.0a.exe"+2E3464] { -&gt;USER32.GetWindowTextW }
+AA2Play v12 FP v1.4.0a.exe+651F - 8D 47 04              - lea eax,[edi+04]
+AA2Play v12 FP v1.4.0a.exe+6522 - 50                    - push eax
+AA2Play v12 FP v1.4.0a.exe+6523 - 8D 4C 24 0C           - lea ecx,[esp+0C]
+AA2Play v12 FP v1.4.0a.exe+6527 - E8 C42E0000           - call "AA2Play v12 FP v1.4.0a.exe"+93F0 { -&gt;AA2Play v12 FP v1.4.0a.exe+93F0 }
+AA2Play v12 FP v1.4.0a.exe+652C - 83 C4 04              - add esp,04 { 4 }
+AA2Play v12 FP v1.4.0a.exe+652F - 84 C0                 - test al,al
+AA2Play v12 FP v1.4.0a.exe+6531 - B8 01000000           - mov eax,00000001 { 1 }
+AA2Play v12 FP v1.4.0a.exe+6536 - 74 02                 - je "AA2Play v12 FP v1.4.0a.exe"+653A { -&gt;AA2Play v12 FP v1.4.0a.exe+653A }
+AA2Play v12 FP v1.4.0a.exe+6538 - 89 37                 - mov [edi],esi
+AA2Play v12 FP v1.4.0a.exe+653A - 8B 8C 24 08020000     - mov ecx,[esp+00000208]
+AA2Play v12 FP v1.4.0a.exe+6541 - 5F                    - pop edi
+AA2Play v12 FP v1.4.0a.exe+6542 - 5E                    - pop esi
+AA2Play v12 FP v1.4.0a.exe+6543 - 33 CC                 - xor ecx,esp
+AA2Play v12 FP v1.4.0a.exe+6545 - E8 0F352800           - call "AA2Play v12 FP v1.4.0a.exe"+289A59 { -&gt;AA2Play v12 FP v1.4.0a.exe+289A59 }
+AA2Play v12 FP v1.4.0a.exe+654A - 81 C4 04020000        - add esp,00000204 { 516 }
+AA2Play v12 FP v1.4.0a.exe+6550 - C2 0800               - ret 0008 { 8 }
+
+This function is called as part of an EnumWindow call as the EnumWndProc.
+The problem here is that the function allocates a 516 byte buffer for the
+Text of the enumed window, but tells the function that it can hold 512
+letters; its calling the wide-char version though, so that will result
+in stack corruption for windows with a longer title than 256 letters.
+
+easiest fix is to change
+AA2Play v12 FP v1.4.0a.exe+650E - 68 00010000           - push 00000200 { 512 }
+to push 100 instead, as it tells the GetWindowTextW function how many
+letters fit into the buffer.
+*/
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>3</ID>
+      <Description>"code"</Description>
+      <LastState Value="75 1B 8B 0F" RealAddress="001D23B7"/>
+      <ShowAsHex>1</ShowAsHex>
+      <VariableType>Array of byte</VariableType>
+      <ByteLength>4</ByteLength>
+      <Address>"AA2Play v12 FP v1.4.0a.exe"+1523B7</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>4</ID>
+      <Description>"tan code?"</Description>
+      <LastState Value="3900899467" RealAddress="001D0E1A"/>
+      <VariableType>4 Bytes</VariableType>
+      <Address>"AA2Play v12 FP v1.4.0a.exe"+150E1A</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>5</ID>
+      <Description>"tan code inject"</Description>
+      <LastState/>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+//code from here to '[DISABLE]' will be used to enable the cheat
+alloc(newmem,2048)
+label(exit)
+label(end)
+label(memfake)
+label(memfake_str)
+label(mempartorder)
+
+//esi is still the part number (0-7)
+//esp+2c is still tan number
+//default value is "AA2Play v12 FP v1.4.0a.exe"+392740
+//virtual table is now "AA2Play v12 FP v1.4.0a.exe"+392738
+
+newmem: //at this point, AA2Edit.exe+36F640 is default value (not found)
+cmp eax, "AA2Play v12 FP v1.4.0a.exe"+392740
+jne end
+//tan not registered, try to find it ourselfes
+  cmp [esp+2C], 6 //for now only have 7 defined
+  jne end
+  mov dl, [mempartorder+esi]
+  cmp dl, FF
+  je end //this one isnt defined
+  add dl, '0'
+  mov [memfake_str+1C], dl
+  mov eax, memfake
+end:
+call "AA2Play v12 FP v1.4.0a.exe"+E980
+jmp exit
+
+int 3
+int 3
+int 3
+int 3
+int 3
+int 3
+int 3
+int 3
+
+mempartorder:
+db 00 01 FF 04 03 02 00 03
+memfake:
+//so, as for the data that is supposed to be here:
+//1: AA2Edit.exe+36F638 (virtual table i assume)
+//2: DWORD 13
+//3: DWORD 17
+//4: DWORD 1
+//5: unicodestring, length of #56 bytes = 28 letters
+//total size of #72
+dd "AA2Play v12 FP v1.4.0a.exe"+392738
+db 13 00 00 00
+db 17 00 00 00
+db 01 00 00 00
+memfake_str:
+db 'A' 0 '0' 0 '0' 0 '_' 0 '0' 0 '0' 0 '_' 0 '0' 0 '0' 0 '_' 0 '0' 0 '7' 0
+db '_' 0 '0' 0 '0' 0 '.' 0 'b' 0 'm' 0 'p' 0 0
+
+"AA2Play v12 FP v1.4.0a.exe"+150E1F:
+jmp newmem
+exit:
+
+
+ 
+ 
+[DISABLE]
+//code from here till the end of the code will be used to disable the cheat
+dealloc(newmem)
+"AA2Play v12 FP v1.4.0a.exe"+150E1F:
+call "AA2Play v12 FP v1.4.0a.exe"+E980
+//Alt: db E8 5C DB EB FF
+
+/*
+aa2edit code:
+[/ENABLE/]
+//code from here to '[DISABLE]' will be used to enable the cheat
+alloc(newmem,2048)
+label(exit)
+label(end)
+label(memfake)
+label(memfake_str)
+label(mempartorder)
+
+//esp+2C local variable with tan slot
+//esi part of the image (0-7)
+//15	A00_00_00_07_00.bmp	A00_00_00_07_01.bmp	0	A00_00_00_07_04.bmp
+//A00_00_00_07_03.bmp	A00_00_00_07_02.bmp	A00_00_00_07_00.bmp
+//A00_00_00_07_03.bmp
+
+newmem: //at this point, AA2Edit.exe+36F640 is default value (not found)
+cmp eax, AA2Edit.exe+36F640
+jne end
+//tan not registered, try to find it ourselfes
+  cmp [esp+2C], 6 //for now only have 7 defined
+  jne end
+  mov dl, [mempartorder+esi]
+  cmp dl, FF
+  je end //this one isnt defined
+  add dl, '0'
+  mov [memfake_str+1C], dl
+  mov eax, memfake
+end:
+call AA2Edit.exe+E490
+jmp exit
+
+int 3
+int 3
+int 3
+int 3
+int 3
+int 3
+int 3
+int 3
+
+mempartorder:
+db 00 01 FF 04 03 02 00 03
+memfake:
+//so, as for the data that is supposed to be here:
+//1: AA2Edit.exe+36F638 (virtual table i assume)
+//2: DWORD 13
+//3: DWORD 17
+//4: DWORD 1
+//5: unicodestring, length of #56 bytes = 28 letters
+//total size of #72
+dd AA2Edit.exe+36F638
+db 13 00 00 00
+db 17 00 00 00
+db 01 00 00 00
+memfake_str:
+db 'A' 0 '0' 0 '0' 0 '_' 0 '0' 0 '0' 0 '_' 0 '0' 0 '0' 0 '_' 0 '0' 0 '7' 0
+db '_' 0 '0' 0 '0' 0 '.' 0 'b' 0 'm' 0 'p' 0 0
+
+"AA2Edit.exe"+13EC1F:
+jmp newmem
+exit:
+
+
+
+
+[/DISABLE/]
+//code from here till the end of the code will be used to disable the cheat
+dealloc(newmem)
+"AA2Edit.exe"+13EC1F:
+call AA2Edit.exe+E490
+//Alt: db E8 6C F8 EC FF
+*/
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>6</ID>
+      <Description>"tan code inside"</Description>
+      <LastState/>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+//code from here to '[DISABLE]' will be used to enable the cheat
+alloc(newmem,2048)
+label(startcode)
+label(endcode)
+
+label(this)
+label(memfake)
+label(memfake_str)
+label(mempartorder)
+label(startexit)
+label(endend)
+label(endexit)
+
+//failkonstante:
+//1732750 -
+//13A0000
+//0392750
+
+newmem: //this is allocated memory, you have read,write,execute access
+startcode:
+mov edi,ecx //orig
+mov ebx,[esp+34] //code (edi = ecx = this)
+mov [this], edi
+jmp startexit
+
+endcode:
+lea eax,[esi+10] //orig code
+
+cmp [eax], "AA2Play v12 FP v1.4.0a.exe"+392750
+jne endend
+//tan not registered, try to find it ourselfes
+  //for now only have 7 defined
+  //*this = tan slot
+  mov edx, [this]
+  cmp [edx], 6
+  jne endend
+  mov edx, [esp+8]
+  mov dl, [mempartorder+edx]
+  cmp dl, FF
+  je endend //this one isnt defined
+  add dl, '0'
+  mov [memfake_str+1C], dl
+  mov eax, memfake
+endend:
+mov ecx,[esp+24]
+jmp endexit
+
+
+int 3
+int 3
+int 3
+int 3
+int 3
+int 3
+int 3
+int 3
+
+this:
+db 00 00 00 00
+
+mempartorder:
+db 00 01 FF 04 03 02 00 03
+memfake:
+dd memfake+14
+//so, as for the data that is supposed to be here:
+//1: AA2Edit.exe+36F638 (virtual table i assume)
+//2: DWORD 13
+//3: DWORD 17
+//4: DWORD 1
+//5: unicodestring, length of #56 bytes = 28 letters
+//total size of #72
+dd "AA2Play v12 FP v1.4.0a.exe"+392738//38 27 CA 00 at base 910000:
+db 13 00 00 00
+db 17 00 00 00
+db 01 00 00 00
+memfake_str:
+db 'A' 0 '0' 0 '0' 0 '_' 0 '0' 0 '0' 0 '_' 0 '0' 0 '0' 0 '_' 0 '0' 0 '7' 0
+db '_' 0 '0' 0 '0' 0 '.' 0 'b' 0 'm' 0 'p' 0 0
+
+"AA2Play v12 FP v1.4.0a.exe"+152474:
+jmp endcode
+nop
+nop
+endexit:
+
+//they dont save this, so we have to do that at the beginning of the function
+"AA2Play v12 FP v1.4.0a.exe"+1523A7:
+jmp startcode
+nop
+startexit:
+
+
+
+
+[DISABLE]
+//code from here till the end of the code will be used to disable the cheat
+dealloc(newmem)
+"AA2Play v12 FP v1.4.0a.exe"+1523A7:
+mov edi,ecx
+mov ebx,[esp+34]
+//Alt: db 8B F9 8B 5C 24 34
+
+"AA2Play v12 FP v1.4.0a.exe"+152474:
+lea eax,[esi+10]
+mov ecx,[esp+24]
+//Alt: db 8D 46 10 8B 4C 24 24
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>7</ID>
+      <Description>"code for tan stuff?"</Description>
+      <LastState Value="241832042" RealAddress="001A7B06"/>
+      <VariableType>4 Bytes</VariableType>
+      <Address>"AA2Play v12 Fp v1.4.0a.exe"+127B06</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>8</ID>
+      <Description>"maker tan loop script"</Description>
+      <LastState/>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+
+//code from here to '[DISABLE]' will be used to enable the cheat
+alloc(newmem,4096)
+define(nSlots,1)
+label(loopstart)
+label(exitstart)
+
+label(loopend)
+label(exitend)
+
+label(paMidChange)
+label(paMidChangeRedirect)
+label(paMidChangeEnd)
+label(exitPaMidChange)
+
+label(paInc)
+label(paIncRedirect)
+label(exitPaInc)
+
+label(cnt)
+label(paStruct)
+
+//////////////////////////
+// file read overwrites //
+//////////////////////////
+
+newmem: //this is allocated memory, you have read,write,execute access
+  mov [cnt], 0E
+  pushad //rescue registers, cause we're in the middle of something
+  mov eax, nSlots
+  lea eax, [eax*4]
+  lea eax, [eax*8]
+  push eax
+  call malloc
+  add esp, 4
+  mov [paStruct], eax
+  mov ecx, nSlots
+  lea ecx, [ecx*8] //cause 8 images per slot
+  mov eax, "AA2Play v12 FP v1.4.0a.exe"+392750 //Pa constant
+  mov edi, [paStruct]
+  rep stosd
+  popad
+loopstart:
+//original code for start (push 0E instead of cnt)
+  push 10
+  push [cnt]
+  lea ecx,[esp+0000018C]
+  jmp exitstart
+
+paMidChange:
+  cmp [cnt], 0E
+  ja paMidChangeRedirect
+  lea esi,[esp+60]
+  jmp paMidChangeEnd
+paMidChangeRedirect:
+  mov esi, [cnt]
+  sub esi, 0F
+  lea esi, [esi*4]
+  lea esi, [esi*8] //8 images, 4 byte pointer
+  add esi, [paStruct]
+paMidChangeEnd:
+  lea ebx,[edi+03]
+  jmp exitPaMidChange
+
+paInc:
+  cmp [cnt], 0E
+  ja paIncRedirect
+  add esi,28
+  jmp paIncEnd
+paIncRedirect:
+  add esi, 4
+paIncEnd:
+  sub dword ptr [esp+18],01
+  jmp exitPaInc
+
+loopend:
+  inc [cnt]
+  cmp [cnt], nSlots+0E
+  jbe loopstart //loop while cnt is inbetween
+  jmp "AA2Play v12 FP v1.4.0a.exe"+127F01 //original jump
+  jmp exitend //not reached, but intended
+
+////////////////////////////
+// slot insert overwrites //
+////////////////////////////
+label(slotPtrCall)
+label(slotPtrCallEnd)
+label(exitSlotPtrCall)
+
+label(slotLoopEnd)
+label(exitSlotLoopEnd)
+
+label(slotLoopStart)
+label(slotLoopStartLoop)
+label(exitSlotLoopStart)
+
+slotLoopStart:
+  mov [cnt], 5
+slotLoopStartLoop:
+  mov edx,[esp+1C]
+  mov eax,[edx+0000013C]
+  jmp exitSlotLoopStart
+
+slotPtrCall:
+  //change slot to cnt (esp+18)
+  push eax
+  mov eax, [cnt]
+  mov [esp+1C], eax
+  pop eax
+  //also, change edi to our buffer if above 5
+  cmp [cnt], 5
+  je slotPtrCallEnd
+  mov edi, [cnt]
+  sub edi, 6
+  lea edi, [edi*4]
+  lea edi, [edi*8] //8 images, 4 byte pointer
+  lea edi, [edi+esi*4] //esi is the image part needed (0-7)
+  add edi, [paStruct]
+slotPtrCallEnd:
+  call "AA2Play v12 FP v1.4.0a.exe"+152380
+  jmp exitSlotPtrCall
+
+slotLoopEnd:
+  inc [cnt]
+  cmp [cnt], nSlots+5
+  jbe slotLoopStartLoop
+  inc esi
+  cmp esi,08
+  jl "AA2Play v12 FP v1.4.0a.exe"+127F60
+  jmp exitSlotLoopEnd
+
+int 3
+int 3
+int 3
+
+cnt:
+db 00 00 00 00
+
+int 3
+int 3
+int 3
+int 3
+
+paStruct:
+
+db 00 00 00 00
+
+//start of last loop
+"AA2Play v12 FP v1.4.0a.exe"+127B06:
+jmp newmem
+nop
+nop
+nop
+nop
+nop
+nop
+exitstart:
+
+"AA2Play v12 FP v1.4.0a.exe"+127B7C:
+jmp paInc
+nop
+nop
+nop
+exitPaInc:
+
+"AA2Play v12 FP v1.4.0a.exe"+127B1B:
+jmp paMidChange
+nop
+nop
+exitPaMidChange:
+
+//end of last loop
+"AA2Play v12 FP v1.4.0a.exe"+127B86:
+jmp loopend
+exitend:
+
+"AA2Play v12 FP v1.4.0a.exe"+12821A:
+jmp slotPtrCall
+exitSlotPtrCall:
+
+"AA2Play v12 FP v1.4.0a.exe"+128276:
+jmp slotLoopEnd
+nop
+nop
+nop
+nop
+nop
+exitSlotLoopEnd:
+
+"AA2Play v12 FP v1.4.0a.exe"+1281E7:
+jmp slotLoopStart
+nop
+nop
+nop
+nop
+nop
+exitSlotLoopStart:
+
+[DISABLE]
+
+//code from here till the end of the code will be used to disable the cheat
+dealloc(newmem)
+"AA2Play v12 FP v1.4.0a.exe"+127B06:
+push 10
+push 0E
+lea ecx,[esp+0000018C]
+//Alt: db 6A 10 6A 0E 8D 8C 24 8C 01 00 00
+
+"AA2Play v12 FP v1.4.0a.exe"+127B86:
+jmp "AA2Play v12 FP v1.4.0a.exe"+127F01
+//Alt: db E9 76 03 00 00
+
+"AA2Play v12 FP v1.4.0a.exe"+127B7C:
+add esi,28
+sub dword ptr [esp+18],01
+//Alt: db 83 C6 28 83 6C 24 18 01
+
+"AA2Play v12 FP v1.4.0a.exe"+127B1B:
+lea esi,[esp+60]
+lea ebx,[edi+03]
+//Alt: db 8D 74 24 60 8D 5F 03
+
+"AA2Play v12 FP v1.4.0a.exe"+12821A:
+call "AA2Play v12 FP v1.4.0a.exe"+152380
+//Alt: db E8 61 A1 02 00
+
+"AA2Play v12 FP v1.4.0a.exe"+128276:
+inc esi
+cmp esi,08
+jl "AA2Play v12 FP v1.4.0a.exe"+127F60
+//Alt: db 46 83 FE 08 0F 8C E0 FC FF FF
+
+"AA2Play v12 FP v1.4.0a.exe"+1281E7:
+mov edx,[esp+1C]
+mov eax,[edx+0000013C]
+//Alt: db 8B 54 24 1C 8B 82 3C 01 00 00
+
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>9</ID>
+      <Description>"crash location: "AA2Play v12 FP v1.4.0a.exe"+14867C"</Description>
+      <LastState Value="" RealAddress="00000000"/>
+      <GroupHeader>1</GroupHeader>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>10</ID>
+      <Description>"temp crash fix 1"</Description>
+      <LastState/>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+//code from here to '[DISABLE]' will be used to enable the cheat
+alloc(newmem,2048)
+label(returnhere)
+label(originalcode)
+label(exit)
+
+newmem: //this is allocated memory, you have read,write,execute access
+//place your code here
+
+
+movsx esi, byte ptr [esp+70]
+cmp esi, 5
+jbe originalcode
+mov byte ptr [esp+70], 5
+originalcode:
+mov esi,eax
+mov edi,00000003
+
+exit:
+jmp returnhere
+
+"AA2Play v12 FP v1.4.0a.exe"+1484A6:
+jmp newmem
+nop
+nop
+returnhere:
+
+
+ 
+ 
+[DISABLE]
+//code from here till the end of the code will be used to disable the cheat
+dealloc(newmem)
+"AA2Play v12 FP v1.4.0a.exe"+1484A6:
+mov esi,eax
+mov edi,00000003
+//Alt: db 8B F0 BF 03 00 00 00
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>11</ID>
+      <Description>"No description"</Description>
+      <LastState Value="4280162060" RealAddress="0F2A8D24"/>
+      <VariableType>4 Bytes</VariableType>
+      <Address>0F2A8D24</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>12</ID>
+      <Description>""AA2Play v12 Fp v1.4.0a.exe"+AA76C: clothes color set"</Description>
+      <LastState Value="" RealAddress="00000000"/>
+      <GroupHeader>1</GroupHeader>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols>
+    <SymbolEntry>
+      <Name>wndcreatemem</Name>
+      <Address>03DD0000</Address>
+    </SymbolEntry>
+    <SymbolEntry>
+      <Name>globmem</Name>
+      <Address>0AB90000</Address>
+    </SymbolEntry>
+  </UserdefinedSymbols>
+  <DisassemblerComments>
+    <DisassemblerComment>
+      <Address>"AA2Edit.exe"+17409</Address>
+      <Comment>test for slot &lt; 0?
+</Comment>
+    </DisassemblerComment>
+    <DisassemblerComment>
+      <Address>"AA2Edit.exe"+174BF</Address>
+      <Comment>SendMessageW
+</Comment>
+    </DisassemblerComment>
+    <DisassemblerComment>
+      <Address>"AA2Edit.exe"+286C0</Address>
+      <Comment>lparam
+</Comment>
+    </DisassemblerComment>
+    <DisassemblerComment>
+      <Address>"AA2Edit.exe"+286C1</Address>
+      <Comment>classstruct
+</Comment>
+    </DisassemblerComment>
+    <DisassemblerComment>
+      <Address>"AA2Edit.exe"+28D3A</Address>
+      <Comment>esi is hair dialog
+</Comment>
+    </DisassemblerComment>
+    <DisassemblerComment>
+      <Address>"AA2Edit.exe"+28E31</Address>
+      <Comment>param is bool*, *param will be push_backed in the 
+array
+</Comment>
+    </DisassemblerComment>
+    <DisassemblerComment>
+      <Address>"AA2Edit.exe"+28EB3</Address>
+      <Comment>backjump of for loop
+</Comment>
+    </DisassemblerComment>
+    <DisassemblerComment>
+      <Address>"AA2Edit.exe"+297DF</Address>
+      <Comment>loop end
+</Comment>
+    </DisassemblerComment>
+    <DisassemblerComment>
+      <Address>"AA2Edit.exe"+29C0E</Address>
+      <Comment>erwartet eax, ecx sowie 1 stack parameter
+</Comment>
+    </DisassemblerComment>
+    <DisassemblerComment>
+      <Address>"AA2Edit.exe"+2A0C8</Address>
+      <Comment>facebool-buffer der sich aufbaut
+</Comment>
+    </DisassemblerComment>
+    <DisassemblerComment>
+      <Address>"AA2Edit.exe"+2A0D6</Address>
+      <Comment>buffersize?
+</Comment>
+    </DisassemblerComment>
+    <DisassemblerComment>
+      <Address>"AA2Edit.exe"+2A0E1</Address>
+      <Comment>realloc, i assume?
+</Comment>
+    </DisassemblerComment>
+    <DisassemblerComment>
+      <Address>"AA2Edit.exe"+33769</Address>
+      <Comment>has to return != 0 for face refresh
+</Comment>
+    </DisassemblerComment>
+    <DisassemblerComment>
+      <Address>"AA2Edit.exe"+D9F47</Address>
+      <Comment>stack has now 0x34 additional bytes
+</Comment>
+    </DisassemblerComment>
+    <DisassemblerComment>
+      <Address>"AA2Edit.exe"+119CE8</Address>
+      <Comment>paramsize C
+</Comment>
+    </DisassemblerComment>
+    <DisassemblerComment>
+      <Address>"AA2Edit.exe"+13EC15</Address>
+      <Comment>ecx + 1 param
+</Comment>
+    </DisassemblerComment>
+    <DisassemblerComment>
+      <Address>"AA2Edit.exe"+13EC1F</Address>
+      <Comment>fastcall over eax
+</Comment>
+    </DisassemblerComment>
+    <DisassemblerComment>
+      <Address>"AA2Edit.exe"+13EC27</Address>
+      <Comment>these esis determine the tan applied
+</Comment>
+    </DisassemblerComment>
+    <DisassemblerComment>
+      <Address>"AA2Edit.exe"+1401B3</Address>
+      <Comment>if tanslot &lt; memval
+</Comment>
+    </DisassemblerComment>
+    <DisassemblerComment>
+      <Address>"AA2Edit.exe"+19AB91</Address>
+      <Comment>ebx = hwnd
+</Comment>
+    </DisassemblerComment>
+    <DisassemblerComment>
+      <Address>"AA2Edit.exe"+19ABA4</Address>
+      <Comment>edi = msg
+</Comment>
+    </DisassemblerComment>
+    <DisassemblerComment>
+      <Address>"AA2Edit.exe"+19ABA8</Address>
+      <Comment>ebp = lparam
+</Comment>
+    </DisassemblerComment>
+    <DisassemblerComment>
+      <Address>"AA2Edit.exe"+19ABE2</Address>
+      <Comment>lparam
+</Comment>
+    </DisassemblerComment>
+    <DisassemblerComment>
+      <Address>"AA2Edit.exe"+19ABE3</Address>
+      <Comment>wparam
+</Comment>
+    </DisassemblerComment>
+    <DisassemblerComment>
+      <Address>"AA2Edit.exe"+19ABE4</Address>
+      <Comment>msg
+</Comment>
+    </DisassemblerComment>
+    <DisassemblerComment>
+      <Address>"AA2Edit.exe"+19ABE5</Address>
+      <Comment>hwnd
+</Comment>
+    </DisassemblerComment>
+    <DisassemblerComment>
+      <Address>"AA2Edit.exe"+19ABE8</Address>
+      <Comment>class -&gt; handler(hwnd, msg, wparam, lparam)
+</Comment>
+    </DisassemblerComment>
+    <DisassemblerComment>
+      <Address>"AA2Play v12 FP v1.4.0a.exe"+148623</Address>
+      <Comment>ecx seems to be tan slot here
+</Comment>
+    </DisassemblerComment>
+  </DisassemblerComments>
+</CheatTable>

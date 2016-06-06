@@ -26,3 +26,12 @@ A: To modify the random buttons, i would have to know exactly which slots exists
 
 Q: The list.txt file is tedious. Why dont you use the Override.xml system from ReiEdit?
 A: if you are willing to write a XML parser and put it in the program, you are more than willing to do so.
+
+Q: Why is my save folder full of backup cards? how do i disable that?
+A: Never trust a program that edits files. Especially not if its written by me. the backup feature was introduced
+	for safety. however, you can disable it in the config by adding DISABLE POST_BACKUP and DISABLE PRE_BACKUP to it.
+	read the config comments for more info.
+
+Q: Why do the clothes and poses parts not work for male?
+A: Apparently the functions that load female and male body and cloths are different. The injections i did only affect
+	the female loads.

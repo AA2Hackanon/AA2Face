@@ -718,3 +718,7 @@ AA2Edit.exe+35FED - 90                    - nop
 AA2Edit.exe+35FEE - 90                    - nop
 AA2Edit.exe+35FEF - 90                    - nop*/
 
+//activates eye tracking if bx == 1 && bx != esi+100E, deactivates if bx == 0 && ...
+/*AA2Edit.exe+1ADFA2 - 66 39 9E 0E100000     - cmp[esi+0000100E],bx
+AA2Edit.exe+1ADFA9 - 75 06                 - jne AA2Edit.exe+1ADFB1*/
+

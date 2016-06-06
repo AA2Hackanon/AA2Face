@@ -188,6 +188,7 @@ int __cdecl HairDialogNotification(HairDialogClass* internclass,HWND hwndDlg,UIN
 		HWND cbFlip = internclass->GetFlipButtonWnd();
 		LOGPRIO(Logger::Priority::SPAM) << "recieved FLIPHAIR message";
 		SendMessageW(cbFlip,BM_SETCHECK,SendMessageW(cbFlip,BM_GETCHECK,0,0) == BST_CHECKED ? BST_UNCHECKED : BST_CHECKED,0);
+		loc_hairEditChanged = true;
 		internclass->SetHairChangeFlags(loc_lastHairTab);
 	}
 	else if (msg == HAIRMESSAGE_ADDHAIR) {
@@ -243,6 +244,9 @@ int __cdecl HairDialogNotification(HairDialogClass* internclass,HWND hwndDlg,UIN
 			if (!(styles & BS_CHECKBOX)) {
 				LOGPRIO(Logger::Priority::SPAM) << "hair button was clicked\n";
 				loc_hairButtonClicked = true; //This method worked so fine with the face, lets just do that again
+			}
+			else {
+				loc_hairEditChanged = true; //so that he doesnt think it was the gui choosing another button or random or smthn
 			}
 		}
 		else if (wnd == g_edHairSelector) {

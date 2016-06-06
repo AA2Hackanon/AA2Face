@@ -337,6 +337,7 @@ extern "C" void systemdialog_load_shirt_state();
 extern "C" void systemdialog_load_skirt_state();
 extern "C" void systemdialog_load_restore_skirt_state();
 extern "C" void systemdialog_pose_cancel_hook();
+extern "C" void systemdialog_pose_eye_track();
 
 void HookSystem() {
 	using namespace Opcodes;
@@ -432,6 +433,10 @@ void HookSystem() {
 	AA2Edit.exe+35FEF - 90                    - nop*/
 	ret &= Hook(AA2Base + 0x35FEA,6,{ { 0x77, 0x24, 0x90, 0x90, 0x90, 0x90} });
 	
+	//eye track hook
+	/*AA2Edit.exe+1ADFA2 - 66 39 9E 0E100000     - cmp[esi+0000100E],bx
+	AA2Edit.exe+1ADFA9 - 75 06                 - jne AA2Edit.exe+1ADFB1*/
+	ret &= Hook(AA2Base + 0x1ADFA2,7,{ { Call, (DWORD)systemdialog_pose_eye_track }, {Nop, Nop} });
 
 	if (!ret) {
 		LOGPRIO(Logger::Priority::CRIT_ERR) << "At least one modification failed in System hooks!\n";

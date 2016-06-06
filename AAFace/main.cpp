@@ -80,6 +80,9 @@ int CALLBACK WinMain(
 	_In_ int       nCmdShow
 	)
 {
+	bool createdProcess = false;
+	int createdProcessSearchCnt = 0;
+
 	//get debug rights
 	HANDLE token;
 	int privSuc = GetDebugAdjustToken(&token);
@@ -125,7 +128,7 @@ int CALLBACK WinMain(
 		}
 		CloseHandle(pInfo.hProcess);
 		CloseHandle(pInfo.hThread);
-		Sleep(500); //half a second should be enough
+		createdProcess = true;
 	}
 
 	const char name[] = "AA2Edit.exe";
@@ -162,9 +165,20 @@ int CALLBACK WinMain(
 			CloseHandle(proc);
 		}
 		if (procId == (DWORD)-1) {
-			int res = MessageBox(NULL,"Could not find instance of AA2Edit.exe. Retry?","Info",MB_YESNO);
-			if(res == IDNO) {
-				return 0;
+			if(createdProcess) {
+				if(createdProcessSearchCnt++ < 500) {
+					Sleep(100);
+				}
+				else {
+					MessageBox(NULL,"Created process, but failed to find it","Error",MB_ICONERROR);
+					return 0;
+				}
+			}
+			else {
+				int res = MessageBox(NULL,"Could not find instance of AA2Edit.exe. Retry?","Info",MB_YESNO);
+				if (res == IDNO) {
+					return 0;
+				}
 			}
 		} else {
 			break;

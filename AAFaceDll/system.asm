@@ -18,6 +18,7 @@ EXTERN GetOutfitSkirtState:PROC
 EXTERN AfterOutfitCallback:PROC
 
 EXTERN GetPlayPosePosition:PROC
+EXTERN GetEyeTrackState:PROC
 
 EXTERNDEF systemdialog_hooked_dialog_proc_afterinit:PROC
 EXTERNDEF systemdialog_hooked_dialog_proc:PROC
@@ -35,6 +36,7 @@ EXTERNDEF systemdialog_load_skirt_state:PROC
 EXTERNDEF systemdialog_load_restore_skirt_state:PROC
 
 EXTERNDEF systemdialog_pose_cancel_hook:PROC
+EXTERNDEF systemdialog_pose_eye_track:PROC
 
 .data
 
@@ -96,6 +98,10 @@ systemdialog_load_character_3dobject:
 	push eax
 	push edx ; save general purpose registers
 
+	xor eax,eax								
+	mov [outfit_override_pointer], eax	; the following functions are only called for females, so we
+										; need to null it in case they arent called
+
 	mov eax, [esp+8]
 	mov [outfit_clothstate_value], eax ; save for later restore after skirt
 	push ecx
@@ -114,8 +120,11 @@ systemdialog_load_character_3dobject:
 	push eax
 	push edx
 	mov eax, [outfit_override_pointer]
+	test eax,eax
+	jz systemdialog_load_character_3dobject_skipRestore
 	mov dl, byte ptr [outfit_override_value]
 	mov byte ptr [eax], dl
+  systemdialog_load_character_3dobject_skipRestore:
 	pop edx
 	pop eax
 
@@ -252,6 +261,23 @@ systemdialog_pose_cancel_hook:
 	ret
   systemdialog_pose_cancel_normal:
 	cmp byte ptr [esp+1Ah], 00 
+	ret
+
+;we replace the cmp; our job is to enforce the return value from the gui
+;AA2Edit.exe+1ADFA2 - 66 39 9E 0E100000     - cmp [esi+0000100E],bx
+;AA2Edit.exe+1ADFA9 - 75 06                 - jne AA2Edit.exe+1ADFB1
+systemdialog_pose_eye_track:
+	call GetEyeTrackState
+	cmp ax, bx
+	je systemdialog_pose_eye_track_exit
+	mov bx, ax
+	cmp [esi+100Eh], bx
+	jne systemdialog_pose_eye_track_exit
+	cmp bx, 1
+	setnz al
+	mov [esi+100Eh], ax
+  systemdialog_pose_eye_track_exit:
+    cmp [esi+100Eh],bx ; dont forget to reinact that one
 	ret
 
 ;AA2Edit.exe+34160 - 8B 44 24 08           - mov eax,[esp+08]

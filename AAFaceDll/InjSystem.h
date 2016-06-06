@@ -7,6 +7,7 @@ extern HWND g_edSystemPose;
 extern HWND g_udSystemPose;
 extern HWND g_btSystemPose;
 extern HWND g_cbSystemLockPose;
+extern HWND g_cbSystemEyeTrack;
 
 void ApplyClothesChange();
 
@@ -29,3 +30,4 @@ extern "C" int __cdecl GetOutfitSkirtState(int original);
 extern "C" void __cdecl AfterOutfitCallback();
 
 extern "C" int __cdecl GetPlayPosePosition();
+extern "C" int __cdecl GetEyeTrackState();
