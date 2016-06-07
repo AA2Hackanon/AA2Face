@@ -19,7 +19,7 @@ extern "C" void __cdecl SystemDialogCharacterLoaded();
 extern "C" void __cdecl BeforeCharacterOverwrite(const wchar_t* path);
 extern "C" void __cdecl AfterCharacterOverwrite();
 
-extern "C" void __cdecl SystemDialogNotification(void* internclass,HWND wnd,UINT msg,WPARAM wparam,LPARAM lparam);
+extern "C" LRESULT __cdecl SystemDialogNotification(void* internclass,HWND wnd,UINT msg,WPARAM wparam,LPARAM lparam);
 extern "C" void __cdecl TopBarDialogNotification(void* internclass,HWND wnd,UINT msg,WPARAM wparam,LPARAM lparam);
 
 extern "C" int __cdecl GetClothingState(int original);

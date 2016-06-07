@@ -222,21 +222,24 @@ void __cdecl SystemDialogAfterDialogInit(void* internclass,HWND wnd) {
 	g_btSystemPose = CreateWindowExW(0,L"BUTTON",L"Change Pose",WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
 		x+60,y+15,100,25,wnd,0,(HINSTANCE)g_AA2Base,0);
 	SendMessage(g_btSystemPose,WM_SETFONT,(WPARAM)font,TRUE);
-	g_cbSystemEyeTrack = CreateWindowExW(0,L"BUTTON",L"Eye Tracking",WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_AUTOCHECKBOX,
+	g_cbSystemEyeTrack = CreateWindowExW(0,L"BUTTON",L"Eye Tracking",WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_AUTO3STATE,
 		x+170,y+15,100,25,wnd,0,(HINSTANCE)g_AA2Base,0);
 	SendMessage(g_cbSystemEyeTrack,WM_SETFONT,(WPARAM)font,TRUE);
 	g_cbSystemLockPose = CreateWindowExW(0,L"BUTTON",L"No Default Stance",WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_AUTOCHECKBOX,
 		x+270,y+15,130,25,wnd,0,(HINSTANCE)g_AA2Base,0);
 	SendMessage(g_cbSystemLockPose,WM_SETFONT,(WPARAM)font,TRUE);
+
+	SendMessage(g_cbSystemEyeTrack,BM_SETCHECK,BST_INDETERMINATE,0);
 }
 
-void __cdecl SystemDialogNotification(void* internclass,HWND wnd,UINT msg,WPARAM wparam,LPARAM lparam) {
+LRESULT __cdecl SystemDialogNotification(void* internclass,HWND wnd,UINT msg,WPARAM wparam,LPARAM lparam) {
 	if(msg == POSEMESSAGE_ADDPOSE) {
 		int diff = (int)wparam;
 		SetEditNumber(g_edSystemPose,GetEditNumber(g_edSystemPose) + diff);
 	}
 	else if(msg == POSEMESSAGE_APPLYPOSE) {
 		loc_playPos = GetEditNumber(g_edSystemPose);
+		return 0;
 	}
 	else if(msg == WM_INITDIALOG) {
 		
@@ -250,6 +253,7 @@ void __cdecl SystemDialogNotification(void* internclass,HWND wnd,UINT msg,WPARAM
 			loc_playPos = GetEditNumber(g_edSystemPose);
 		}
 	}
+	return -1;
 }
 
 void __cdecl TopBarDialogNotification(void* internclass,HWND wnd,UINT msg,WPARAM wparam,LPARAM lparam) {
@@ -510,5 +514,8 @@ int __cdecl GetPlayPosePosition() {
 }
 
 int __cdecl GetEyeTrackState() {
-	return SendMessageW(g_cbSystemEyeTrack,BM_GETCHECK,0,0) == BST_CHECKED ? 1 : 0;
+	int state = SendMessageW(g_cbSystemEyeTrack,BM_GETCHECK,0,0);
+	if (state == BST_INDETERMINATE) return -1;
+	else if (state == BST_CHECKED) return 1;
+	else return 0;
 }

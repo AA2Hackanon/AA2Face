@@ -80,6 +80,12 @@ systemdialog_hooked_dialog_proc:
 	call SystemDialogNotification
 	add esp, 14h ; cdecl
 	pop ecx ; restore this
+	cmp eax, -1
+	je systemdialog_hooked_dialog_proc_continue
+	;skip this dialog notification proc
+	add esp, 4  ; get rid of our return value
+	ret 10h		; return from outer function with 4 parameters
+  systemdialog_hooked_dialog_proc_continue:
 	;remember that we had instructions to do
 	mov eax, [esp+0Ch]
 	cmp eax, 111h
@@ -267,16 +273,19 @@ systemdialog_pose_cancel_hook:
 ;AA2Edit.exe+1ADFA2 - 66 39 9E 0E100000     - cmp [esi+0000100E],bx
 ;AA2Edit.exe+1ADFA9 - 75 06                 - jne AA2Edit.exe+1ADFB1
 systemdialog_pose_eye_track:
+	push eax								; rescue general purpose registers
+	push ecx
+	push edx
 	call GetEyeTrackState
+	cmp eax, -1
+	je systemdialog_pose_eye_track_exit		; -1 means dont touch it
 	cmp ax, bx
-	je systemdialog_pose_eye_track_exit
+	je systemdialog_pose_eye_track_exit		; if he agrees with us, dont do anything
 	mov bx, ax
-	cmp [esi+100Eh], bx
-	jne systemdialog_pose_eye_track_exit
-	cmp bx, 1
-	setnz al
-	mov [esi+100Eh], ax
   systemdialog_pose_eye_track_exit:
+	pop edx
+	pop ecx
+	pop eax
     cmp [esi+100Eh],bx ; dont forget to reinact that one
 	ret
 
