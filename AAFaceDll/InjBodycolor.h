@@ -59,5 +59,6 @@ extern "C" int __cdecl GetNipTypeSelectorIndex(BodycolorDialogClass* internclass
 extern "C" int __cdecl GetNipColorSelectorIndex(BodycolorDialogClass* internclass,int guiChosen);
 extern "C" int __cdecl GetMosaicSelectorIndex(BodycolorDialogClass* internclass,int guiChosen);
 extern "C" int __cdecl GetPubHairSelectorIndex(BodycolorDialogClass* internclass,int guiChosen);
+extern "C" int __cdecl RandomBodyColorSelect(BodycolorDialogClass* internclass);
 
 void BodycolorDialogOnCharacterLoad();

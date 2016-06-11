@@ -87,6 +87,7 @@ extern "C" void facedialog_refresh_face_inject();
 extern "C" void facedialog_hooked_dialog_proc();
 extern "C" void facedialog_load_face_inject();
 extern "C" void facedialog_hooked_dialog_proc_afterinit();
+extern "C" void facedialog_random_hook();
 
 void HookFace() {
 	using namespace Opcodes;
@@ -121,6 +122,14 @@ void HookFace() {
 	//AA2Edit.exe+2242A - E8 81FDFFFF           - call AA2Edit.exe+221B0
 	ret &= Hook(AA2Base + 0x2242A,5,{ {Call, (DWORD)facedialog_hooked_dialog_proc_afterinit} });
 
+	//and the face, edi thiscall
+	//AA2Edit.exe+1B8FB - E8 F0690000           - call AA2Edit.exe+222F0
+	//AA2Edit.exe+34663 - E8 88DCFEFF           - call AA2Edit.exe+222F0
+	if (!g_config.IsDisabled(Config::DISABLE_RANDOM_SLOT_MOD)) {
+		ret &= Hook(AA2Base + 0x1B8FB,5,{ { Call, (DWORD)facedialog_random_hook } });
+		ret &= Hook(AA2Base + 0x34663,5,{ { Call, (DWORD)facedialog_random_hook } });
+	}
+
 	if (!ret) {
 		LOGPRIO(Logger::Priority::CRIT_ERR) << "At least one code modification failed in Face hooks!\n";
 	}
@@ -135,6 +144,7 @@ extern "C" void hairdialog_hooked_dialog_proc();
 extern "C" void hairdialog_hooked_dialog_proc_afterinit();
 extern "C" void hairdialog_invalid_hair_loaded();
 extern "C" void hairdialog_hooked_loadhairinfo();
+extern "C" void hairdialog_randomhair_hook();
 
 void HookHair() {
 	using namespace Opcodes;
@@ -188,6 +198,14 @@ void HookHair() {
 		ret &= Hook(AA2Base + 0x29180,5,{ { Call, (DWORD)hairdialog_hooked_loadhairinfo } });
 		ret &= Hook(AA2Base + 0x294BB,5,{ { Call, (DWORD)hairdialog_hooked_loadhairinfo } });
 	}
+
+	//random hair call from all random button and single random button, respectively; esi thiscall
+	//AA2Edit.exe+1B932 - E8 F9C70000           - call AA2Edit.exe+28130
+	//AA2Edit.exe+34706 - E8 253AFFFF           - call AA2Edit.exe+28130
+	if (!g_config.IsDisabled(Config::DISABLE_RANDOM_SLOT_MOD)) {
+		ret &= Hook(AA2Base + 0x1B932,5,{ { Call, (DWORD)hairdialog_randomhair_hook } });
+		ret &= Hook(AA2Base + 0x34706,5,{ { Call, (DWORD)hairdialog_randomhair_hook } });
+	}
 	
 	if (!ret) {
 		LOGPRIO(Logger::Priority::CRIT_ERR) << "At least one code modification failed in Hair hooks!\n";
@@ -201,6 +219,7 @@ extern "C" void facedetails_refresh_glasses_inject();
 extern "C" void facedetails_refresh_lipcolor_inject();
 extern "C" void facedetails_constructor_inject();
 extern "C" void facedetails_init_hair_inject();
+extern "C" void facedetails_random_hook();
 
 void HookFacedetails() {
 	using namespace Opcodes;
@@ -249,6 +268,14 @@ void HookFacedetails() {
 	//AA2Edit.exe+1C1C2 - E8 29AF0000           - call AA2Edit.exe+270F0 (on load)
 	ret &= Hook(AA2Base + 0x1C44F,5,{ { Call, (DWORD)facedetails_init_hair_inject } });
 	ret &= Hook(AA2Base + 0x1C1C2,5,{ { Call, (DWORD)facedetails_init_hair_inject } });
+
+	//face details, eax thiscall
+	//AA2Edit.exe+1B927 - E8 C4B40000           - call AA2Edit.exe+26DF0
+	//AA2Edit.exe+346E6 - E8 0527FFFF           - call AA2Edit.exe+26DF0
+	if (!g_config.IsDisabled(Config::DISABLE_RANDOM_SLOT_MOD)) {
+		ret &= Hook(AA2Base + 0x1B927,5,{ { Call, (DWORD)facedetails_random_hook } });
+		ret &= Hook(AA2Base + 0x346E6,5,{ { Call, (DWORD)facedetails_random_hook } });
+	}
 	
 	if (!ret) {
 		LOGPRIO(Logger::Priority::CRIT_ERR) << "At least one code modification failed in Facedetails hooks!\n";
@@ -263,6 +290,7 @@ extern "C" void  bodycolor_refresh_niptype_inject();
 extern "C" void  bodycolor_refresh_pubhair_inject();
 extern "C" void  bodycolor_refresh_mosaic_inject();
 extern "C" void bodycolor_init_hair_inject();
+extern "C" void bodycolor_random_hook();
 
 void HookBodycolor() {
 	using namespace Opcodes;
@@ -316,6 +344,14 @@ void HookBodycolor() {
 	//AA2Edit.exe+1C418 - E8 A34B0000           - call AA2Edit.exe+20FC0
 	ret &= Hook(AA2Base + 0x1C18B,5,{ { Call, (DWORD)bodycolor_init_hair_inject } });
 	ret &= Hook(AA2Base + 0x1C418,5,{ { Call, (DWORD)bodycolor_init_hair_inject } });
+
+	//random for body color, eax thisccall
+	//AA2Edit.exe+1B8F0 - E8 FB520000           - call AA2Edit.exe+20BF0
+	//AA2Edit.exe+34641 - E8 AAC5FEFF           - call AA2Edit.exe+20BF0
+	if (!g_config.IsDisabled(Config::DISABLE_RANDOM_SLOT_MOD)) {
+		ret &= Hook(AA2Base + 0x1B8F0,5,{ { Call, (DWORD)bodycolor_random_hook } });
+		ret &= Hook(AA2Base + 0x34641,5,{ { Call, (DWORD)bodycolor_random_hook } });
+	}
 
 	if(!ret) {
 		LOGPRIO(Logger::Priority::CRIT_ERR) << "At least one modification failed in Bodycolor hooks!\n";

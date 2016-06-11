@@ -1,5 +1,6 @@
 #include <Windows.h>
 #include "Config.h"
+#include "SlotFile.h"
 #include "ExternConstants.h"
 #include "Hooks.h"
 #include "Injections.h"
@@ -13,6 +14,7 @@ BOOL WINAPI DllMain(
 	if(fdwReason == DLL_PROCESS_ATTACH) {
 		//config:
 		g_config = Config("AAFace\\config.txt");
+		g_slotFile = SlotFile("AAFace\\slotexists.txt");
 		ExternInit();
 		InjectionsInit();
 		//change calls in code to ours

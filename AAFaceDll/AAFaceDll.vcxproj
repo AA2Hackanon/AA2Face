@@ -140,6 +140,8 @@
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="InjGeneral.cpp" />
+    <ClCompile Include="Parser.cpp" />
+    <ClCompile Include="SlotFile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BoundUpDownControl.h" />
@@ -155,12 +157,15 @@
     <ClInclude Include="InjSystem.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="Injections.h" />
+    <ClInclude Include="Parser.h" />
+    <ClInclude Include="SlotFile.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="config.txt" />
     <Text Include="faq.txt" />
     <Text Include="items.txt" />
     <Text Include="readme.txt" />
+    <Text Include="slotexists.txt" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="bodycolor.asm" />

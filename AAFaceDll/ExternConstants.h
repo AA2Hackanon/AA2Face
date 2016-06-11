@@ -26,6 +26,7 @@ public:
 	//ebx+48
 	HWND GetFaceSlotButton(BYTE slot) const;
 	int GetButtonCount() const;
+	void SetFaceSlot(BYTE slot);
 	void SetChangeFlags();
 };
 
@@ -721,4 +722,21 @@ AA2Edit.exe+35FEF - 90                    - nop*/
 //activates eye tracking if bx == 1 && bx != esi+100E, deactivates if bx == 0 && ...
 /*AA2Edit.exe+1ADFA2 - 66 39 9E 0E100000     - cmp[esi+0000100E],bx
 AA2Edit.exe+1ADFA9 - 75 06                 - jne AA2Edit.exe+1ADFB1*/
+
+//random hair call from all random button and single random button, respectively; esi thiscall
+//AA2Edit.exe+1B932 - E8 F9C70000           - call AA2Edit.exe+28130
+//AA2Edit.exe+34706 - E8 253AFFFF           - call AA2Edit.exe+28130
+
+
+//random for body color, eax thisccall
+//AA2Edit.exe+1B8F0 - E8 FB520000           - call AA2Edit.exe+20BF0
+//AA2Edit.exe+34641 - E8 AAC5FEFF           - call AA2Edit.exe+20BF0
+
+//and the face, edi thiscall
+//AA2Edit.exe+1B8FB - E8 F0690000           - call AA2Edit.exe+222F0
+//AA2Edit.exe+34663 - E8 88DCFEFF           - call AA2Edit.exe+222F0
+
+//face details, eax thiscall
+//AA2Edit.exe+1B927 - E8 C4B40000           - call AA2Edit.exe+26DF0
+//AA2Edit.exe+346E6 - E8 0527FFFF           - call AA2Edit.exe+26DF0
 

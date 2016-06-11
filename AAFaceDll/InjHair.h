@@ -14,3 +14,5 @@ extern "C" INT_PTR g_HairDialogProcReturnValue;
 extern "C" void __cdecl HairDialogAfterInit(HairDialogClass* internclass);
 extern "C" void __cdecl InvalidHairNotifier();
 extern "C" void __cdecl HairInfoNotifier(int tab, TempHairInfos* info);
+
+extern "C" void __cdecl RandomHairSelect(HairDialogClass* internclass);

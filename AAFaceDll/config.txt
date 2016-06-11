@@ -22,10 +22,13 @@ VERBOSITY SPAM
 ;	POST_BACKUP			: disables automatic backup of the new card, before the old cardface was reapplied
 ;	BACKUP_UNIQUE		: on default, backups will be seeded with a timestamp to assure that they are unique.
 ;							if this is disabled, there will only be up to 2 backups per card (pre, post)
+;	RANDOM_SLOT_MOD		: when disabled, random buttons will behave like normal, only picking slots that
+							the gui can pick
 
 DISABLE HAIR_SKIPINVALID
 DISABLE POST_BACKUP
 DISABLE BACKUP_UNIQUE
+DISABLE RANDOM_SLOT_MOD
 
 ; the minimum and maximum zoom can be changed using ZOOM [MIN/MAX] float
 ; MIN means zooming out; default value is 1.5.

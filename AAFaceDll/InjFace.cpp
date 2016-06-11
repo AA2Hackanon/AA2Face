@@ -1,6 +1,7 @@
 #include "InjFace.h"
 #include "Logger.h"
 #include "GenUtils.h"
+#include "SlotFile.h"
 #include <fstream>
 
 HWND g_cbFaceSelector = NULL;
@@ -158,4 +159,15 @@ void __cdecl LoadFace(int findex) {
 	BYTE cbindex = loc_fi2cbi[findex];
 	LOGPRIO(Logger::Priority::SPAM) << "Loading face " << findex << "(mapped to " << (int)cbindex << ")\n";
 	SendMessageW(g_cbFaceSelector,CB_SETCURSEL,cbindex,0);
+}
+
+void __cdecl RandomFaceSelect(FaceDialogClass* internclass) {
+	BYTE randSlot;
+	if (g_slotFile.ValidSlotCount(SlotFile::FACE)) {		
+		do {
+				randSlot = rand()%256; 
+		} while (!g_slotFile.SlotExists(SlotFile::FACE,randSlot));
+		internclass->SetFaceSlot(randSlot); 
+		SendMessage(g_cbFaceSelector,CB_SETCURSEL,loc_fi2cbi[randSlot],0);
+	}
 }

@@ -10,6 +10,7 @@ EXTERN GetGlassesSelectorIndex:PROC
 EXTERN GetLipColorSelectorIndex:PROC
 EXTERN InitGlassesSelector:PROC
 EXTERN InitFacedetailsTab:PROC
+EXTERN RandomFaceDetailsSelect:PROC
 
 EXTERNDEF facedetails_init_hair_inject:PROC
 EXTERNDEF facedetails_hooked_dialog_proc:PROC
@@ -18,6 +19,7 @@ EXTERNDEF facedetails_afterinit:PROC
 EXTERNDEF facedetails_refresh_glasses_inject:PROC
 EXTERNDEF facedetails_refresh_lipcolor_inject:PROC
 EXTERNDEF facedetails_constructor_inject:PROC
+EXTERNDEF facedetails_random_hook:PROC
 
 .data
 	hInstTmp DWORD 0
@@ -158,5 +160,18 @@ facedetails_init_hair_inject:
 	push eax
 	call InitFacedetailsTab
 	add esp, 8
+	ret
+
+;face details, eax thiscall
+;AA2Edit.exe+1B927 - E8 C4B40000           - call AA2Edit.exe+26DF0
+facedetails_random_hook:
+	push eax ; for later
+
+	mov edx, [g_AA2Base]
+	add edx, 26DF0h
+	call edx
+
+	call RandomFaceDetailsSelect
+	add esp, 4
 	ret
 END

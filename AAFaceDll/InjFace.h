@@ -8,3 +8,5 @@ extern "C" int __cdecl GetFaceSelectorIndex();
 extern "C" BOOL __cdecl FaceDialogNotification(FaceDialogClass* internclass,HWND hwndDlg,UINT uMsg,WPARAM wParam,LPARAM lParam);
 extern "C" void __cdecl FaceDialogAfterInit(FaceDialogClass* internclass, HWND wnd);
 extern "C" void __cdecl LoadFace(int index);
+
+extern "C" void __cdecl RandomFaceSelect(FaceDialogClass* internclass);

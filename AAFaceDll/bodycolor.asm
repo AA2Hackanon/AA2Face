@@ -11,6 +11,7 @@ EXTERN GetNipColorSelectorIndex:PROC
 EXTERN GetMosaicSelectorIndex:PROC
 EXTERN GetPubHairSelectorIndex:PROC
 EXTERN InitBodycolorTab:PROC
+EXTERN RandomBodyColorSelect:PROC
 
 EXTERNDEF bodycolor_hooked_dialog_proc:PROC
 EXTERNDEF bodycolor_hooked_dialog_proc_afterinit:PROC
@@ -20,6 +21,7 @@ EXTERNDEF bodycolor_refresh_niptype_inject:PROC
 EXTERNDEF bodycolor_init_hair_inject:PROC
 EXTERNDEF bodycolor_refresh_pubhair_inject:PROC
 EXTERNDEF bodycolor_refresh_mosaic_inject:PROC
+EXTERNDEF bodycolor_random_hook:PROC
 
 .code
 
@@ -185,5 +187,19 @@ bodycolor_init_hair_inject:
 	push eax
 	call InitBodycolorTab
 	add esp, 8
+	ret
+
+;random for body color, eax thisccall
+;AA2Edit.exe+1B8F0 - E8 FB520000           - call AA2Edit.exe+20BF0
+bodycolor_random_hook:
+	push eax ; push for later
+
+	mov edx, [g_AA2Base]
+	add edx, 20BF0h
+	call edx
+
+	call RandomBodyColorSelect
+	add esp, 4
+	
 	ret
 END

@@ -23,7 +23,7 @@ Config::Config(const char* file) : Config()
 {
 	HANDLE f = CreateFile(file,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL);
 	if (f == NULL || f == INVALID_HANDLE_VALUE) {
-		LOGPRIO(Logger::Priority::WARN) << "Could not open config file";
+		LOGPRIO(Logger::Priority::WARN) << "Could not open config file\r\n";
 		return; //failed to open
 	}
 	DWORD fhi; //this really shouldnt be needed, but GetFilieSize crashes if its not given (it shouldnt, but it does)
@@ -325,6 +325,9 @@ bool Config::InterpretDisable(char * str)
 		else if (strcmp(token,"BACKUP_UNIQUE") == 0) {
 			disableFlags |= DISABLE_BACKUP_UNIQUE;
 		}
+		else if(strcmp(token, "RANDOM_SLOT_MOD") == 0) {
+			disableFlags |= DISABLE_RANDOM_SLOT_MOD;
+		}
 		else {
 			LOGPRIO(Logger::Priority::WARN) << "Unknown Hook " << token << " disabled in config\n";
 		}
@@ -366,16 +369,6 @@ bool Config::InterpretLogger(char* str) {
 	return true;
 }
 
-/*
-* Checks if the string at str starts with word
-*/
-bool Config::StartsWith(const char * str,const char * word)
-{
-	while (*word && *str && (*str++ == *word++));
-	if (*word == '\0') return true;
-	return false;
-}
-
 const std::vector<Config::Hotkey>& Config::GetHotkeys() const
 {
 	return hotkeys;
@@ -392,75 +385,4 @@ float Config::GetZoomMax() const
 
 bool Config::IsDisabled(Disable check) const {
 	return disableFlags & check;
-}
-
-/*
-* Modifies str so that it points to a single line, comments (;) or newlines filtered out.
-* if nextLine != NULL, *nextLine becomes the start of the next line, or NULL if end was reached
-*/
-void Config::GetLine(char* str,char** nextLine) {
-	char* it = str;
-	//iterate to either ; (comment), \r\n (newline), \n (newline - unix style), \r (newline - mac style),
-	//so probably just \r or \n, or \0
-	while (true) {
-		if (*it == ';') {
-			*it++ = '\0';
-			//skip rest of line
-			while (*it && *it != '\r' && *it != '\n') it++;
-			while (*it && *it == '\r' || *it == '\n') it++;
-			if (nextLine != NULL) {
-				if (*it)
-					*nextLine = it;
-				else
-					*nextLine = NULL;
-			}
-			break;
-		}
-		else if (*it == '\r' || *it == '\n') {
-			*it++ = '\0';
-			while (*it && *it == '\r' || *it == '\n') it++;
-			if (nextLine != NULL) {
-				if (*it)
-					*nextLine = it;
-				else
-					*nextLine = NULL;
-			}
-			break;
-		}
-		else if (*it == '\0') {
-			if (nextLine != NULL) *nextLine = NULL;
-			break;
-		}
-		it++;
-	}
-}
-
-/*
-* Gets next whitespace seperated token from str, nullterminates it,
-* sets nextPart (if != NULL) to point to after the \0 and then
-* returns a pointer to the beginning of the token (skipping whitespaces),
-* or NULL if no token was found (only whitespaces and \0)
-*/
-char* Config::GetToken(char* str,char** nextPart) {
-	while (isspace(*str) && *str != '\0') str++;
-	if (*str == '\0') {
-		if (nextPart != NULL) *nextPart = NULL;
-		return NULL;
-	}
-	char* ret = str;
-	while (!isspace(*str) && *str != '\0') str++;
-	if (*str == '\0') {
-		if (nextPart != NULL) *nextPart = NULL;
-		return ret;
-	}
-	*str = '\0';
-	if (nextPart != NULL) {
-		if (*(str+1) == '\0') {
-			*nextPart = NULL;
-		}
-		else {
-			*nextPart = str+1;
-		}
-	}
-	return ret;
 }

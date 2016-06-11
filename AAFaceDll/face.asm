@@ -8,12 +8,14 @@ EXTERN LoadFace:PROC
 EXTERN InitFaceSelector:PROC
 EXTERN FaceDialogNotification:PROC
 EXTERN FaceDialogAfterInit:PROC
+EXTERN RandomFaceSelect:PROC
 
 EXTERNDEF facedialog_refresh_face_inject:PROC
 EXTERNDEF facedialog_load_face_inject:PROC
 EXTERNDEF facedialog_hooked_dialog_proc:PROC
 EXTERNDEF facedialog_constructor_inject:PROC
 EXTERNDEF facedialog_hooked_dialog_proc_afterinit:PROC
+EXTERNDEF facedialog_random_hook:PROC
 
 .data
 	hInstTmp DWORD 0
@@ -125,4 +127,17 @@ facedialog_hooked_dialog_proc_afterinit:
 	add esp, 8
 
 	ret 4
+
+;and the face, edi thiscall
+;AA2Edit.exe+1B8FB - E8 F0690000           - call AA2Edit.exe+222F0
+facedialog_random_hook:
+	mov eax, [g_AA2Base]
+	add eax, 222F0h
+	call eax
+	
+	push edi
+	call RandomFaceSelect
+	add esp, 4
+	
+	ret
 END

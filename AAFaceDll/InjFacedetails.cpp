@@ -1,6 +1,7 @@
 #include "InjFacedetails.h"
 #include "Logger.h"
 #include "GenUtils.h"
+#include "SlotFile.h"
 
 BoundUpDownControl<FacedetailsDialogClass,
 				&FacedetailsDialogClass::GetGlassesButtonWnd,
@@ -80,4 +81,15 @@ void __cdecl InitFacedetailsTab(FacedetailsDialogClass* internclass,bool before)
 
 void FacedetailsDialogOnCharacterLoad() {
 	
+}
+
+int __cdecl RandomFaceDetailsSelect(FacedetailsDialogClass* internclass) {
+	BYTE randSlot;
+	if (g_slotFile.ValidSlotCount(SlotFile::GLASSES)) {
+		do {
+			randSlot = rand()%256; 
+		} while (!g_slotFile.SlotExists(SlotFile::GLASSES,randSlot));
+			internclass->SetGlassesSlot(randSlot); 
+			g_budGlasses.SetChosenSlot(randSlot); 
+	}
 }

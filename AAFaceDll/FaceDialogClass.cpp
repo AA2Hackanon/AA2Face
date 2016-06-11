@@ -16,3 +16,7 @@ void FaceDialogClass::SetChangeFlags() {
 	BYTE* someVal = (BYTE*)g_AA2RedrawFlagTable;
 	*(someVal+0x12) = 1;
 }
+
+void FaceDialogClass::SetFaceSlot(BYTE slot) {
+	SetChoiceFlag(0x46A,slot);
+}

@@ -12,6 +12,8 @@ EXTERN HairDialogAfterInit:PROC
 EXTERN InvalidHairNotifier:PROC
 EXTERN HairInfoNotifier:PROC
 
+EXTERN RandomHairSelect:PROC
+
 EXTERNDEF hairdialog_refresh_hair_inject:PROC
 EXTERNDEF hairdialog_init_hair_inject:PROC
 EXTERNDEF hairdialog_constructor_inject:PROC
@@ -19,6 +21,8 @@ EXTERNDEF hairdialog_hooked_dialog_proc:PROC
 EXTERNDEF hairdialog_hooked_dialog_proc_afterinit:PROC
 EXTERNDEF hairdialog_invalid_hair_loaded:PROC
 EXTERNDEF hairdialog_hooked_loadhairinfo:PROC
+
+EXTERNDEF hairdialog_randomhair_hook:PROC
 
 .data
 	hInstTmp DWORD 0
@@ -175,4 +179,20 @@ hairdialog_hooked_loadhairinfo:
 	add esp, 8			;cdecl
 	pop eax				;get return value back
 	ret 8				;note that we still have to get rid of the original parameters
+
+
+
+;random hair call from all random button and single random button, respectively; esi thiscall
+;AA2Edit.exe+1B932 - E8 F9C70000           - call AA2Edit.exe+28130
+hairdialog_randomhair_hook:
+	mov eax, [g_AA2Base]
+	add eax, 28130h
+	call eax
+
+	push esi
+	call RandomHairSelect
+	add esp, 4
+
+	ret
+
 END

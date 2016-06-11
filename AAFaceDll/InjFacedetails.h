@@ -25,5 +25,6 @@ extern "C" void __cdecl FacedetailsAfterDialogInit(FacedetailsDialogClass* inter
 extern "C" void __cdecl FacedetailsAfterInit(void* internclass);
 extern "C" int __cdecl GetGlassesSelectorIndex(FacedetailsDialogClass* internclass,int guiChosen);
 extern "C" int __cdecl GetLipColorSelectorIndex(FacedetailsDialogClass* internclass,int guiChosen);
+extern "C" int __cdecl RandomFaceDetailsSelect(FacedetailsDialogClass* internclass);
 
 void FacedetailsDialogOnCharacterLoad();

@@ -1,6 +1,7 @@
 #include "InjBodycolor.h"
 #include "Logger.h"
 #include "GenUtils.h"
+#include "SlotFile.h"
 
 BoundUpDownControl<BodycolorDialogClass,
 	&BodycolorDialogClass::GetNipTypeButtonHwnd,
@@ -103,6 +104,30 @@ void __cdecl InitBodycolorTab(BodycolorDialogClass* internclass,bool before) {
 	g_budPubHair.InitTab(internclass,before);
 }
 
-void BodycolorDialogOnCharacterLoad() {
+void __cdecl BodycolorDialogOnCharacterLoad() {
 	loc_characterLoaded = true;
+}
+
+int __cdecl RandomBodyColorSelect(BodycolorDialogClass* internclass) {
+	#define RAND_SLOT_SELECTION(type , intclassSetFunction, budVariable) \
+			if(g_slotFile.ValidSlotCount(type)) { \
+				do { \
+					randSlot = rand()%256; \
+				} while (!g_slotFile.SlotExists(type,randSlot)); \
+				internclass-> intclassSetFunction (randSlot); \
+				budVariable .SetChosenSlot(randSlot); \
+			}
+	BYTE randSlot;
+	//nip type
+	RAND_SLOT_SELECTION(SlotFile::NIP_TYPE,SetCurrentNipTypeSlot,g_budNipType);
+	//nip color
+	RAND_SLOT_SELECTION(SlotFile::NIP_COLOR,SetCurrentNipColorSlot,g_budNipColor);
+	//tan
+	RAND_SLOT_SELECTION(SlotFile::TAN,SetCurrentTanSlot,g_budTan);
+	//mosaic
+	RAND_SLOT_SELECTION(SlotFile::MOSAIC,SetCurrentMosaicSlot,g_budMosaic);
+	//pub
+	RAND_SLOT_SELECTION(SlotFile::PUB_SHAPE,SetCurrentPubHairSlot,g_budPubHair);
+	#undef RAND_SLOT_SELECTION
+	
 }

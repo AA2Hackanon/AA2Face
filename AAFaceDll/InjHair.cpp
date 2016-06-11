@@ -2,6 +2,7 @@
 #include "Logger.h"
 #include "GenUtils.h"
 #include "Config.h"
+#include "SlotFile.h"
 
 INT_PTR g_HairDialogProcReturnValue = 0;
 HWND g_edHairSelector = NULL;
@@ -447,6 +448,35 @@ void __cdecl HairInfoNotifier(int tab,TempHairInfos* info) {
 		}
 		else {
 			loc_hairExists[tab][i] = 1 + info[i].hasFlip;
+		}
+	}
+}
+
+void __cdecl RandomHairSelect(HairDialogClass* internclass) {
+	static const SlotFile::SlotTypes hairSlotTypes[] = { SlotFile::HAIR_FRONT, SlotFile::HAIR_SIDE, 
+														SlotFile::HAIR_BACK, SlotFile::HAIR_EXTENSION };
+	static const SlotFile::SlotTypes hairSlotFlips[] = { SlotFile::HAIR_FRONT_FLIPS, SlotFile::HAIR_SIDE_FLIPS,
+		SlotFile::HAIR_BACK_FLIPS, SlotFile::HAIR_EXTENSION_FLIPS };
+
+	for (int i = 0; i < 4; i++) {
+		if(g_slotFile.ValidSlotCount(hairSlotTypes[i]) > 0) {
+			//we doing it just as fucking lazily as illusion did it.
+			BYTE randSlot;
+			do {
+				randSlot = rand() % 256;
+			} while (!g_slotFile.SlotExists(hairSlotTypes[i],randSlot));
+			*internclass->HairOfTab(i) = randSlot;
+			loc_chosenHairs[i] = randSlot;
+			loc_bEdIgnoreChange = true;
+			SetEditNumber(g_edHairSelector,randSlot);
+			//also, do flip if existing
+			if(g_slotFile.SlotExists(hairSlotFlips[i], randSlot)) {
+				BYTE flip = rand() % 2;
+				*internclass->FlipBoolOfTab(i) = flip;
+				loc_chosenFlips[i] = flip;
+				SendMessage(internclass->GetFlipButtonWnd(),BM_SETCHECK,(flip == 0) ? BST_CHECKED : BST_UNCHECKED,0);
+			}
+			
 		}
 	}
 }
