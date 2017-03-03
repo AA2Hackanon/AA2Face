@@ -19,7 +19,7 @@ namespace {
 	int loc_changedHairDirection = 0;
 	HairDialogClass* loc_hairclass = NULL;
 
-	BYTE loc_hairExists[4][255]; //0 means doesnt exists, 1 means exists, >1 means it exsits and has a flip
+	BYTE loc_hairExists[4][256]; //0 means doesnt exists, 1 means exists, >1 means it exsits and has a flip
 }
 
 void __cdecl InitHairSelector(HWND parent,HINSTANCE hInst) {
@@ -292,7 +292,7 @@ int __cdecl HairDialogNotification(HairDialogClass* internclass,HWND hwndDlg,UIN
 							//SendMessage(internclass->GetHairSlotButton(ret),BM_CLICK,BST_CHECKED,0);
 							//applyChange = false;
 						}
-						if (g_config.IsDisabled(Config::DISABLE_HAIR_SKIPINVALID) && !loc_hairExists[loc_lastHairTab][ret]) {
+						if (!g_config.IsDisabled(Config::DISABLE_HAIR_SKIPINVALID) && !loc_hairExists[loc_lastHairTab][ret]) {
 							//its invalid, find next valid one
 							BYTE currHair = *(internclass->HairOfTab(loc_lastHairTab));
 							int direction = ret - currHair;
@@ -441,7 +441,7 @@ void __cdecl HairInfoNotifier(int tab,TempHairInfos* info) {
 	if(tab < 0 || tab > 3) {
 		LOGPRIO(Logger::Priority::WARN) << "Hair Info Notifier was called with invalid tab " << tab << "\n";
 	}
-	for (int i = 0; i < 255; i++) {
+	for (int i = 0; i < 256; i++) {
 		if(info[i].targetPPMask[0] == '\0') {
 			//if no pp is given, the hair was not found -> does not exist
 			loc_hairExists[tab][i] = 0;

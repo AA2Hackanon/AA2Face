@@ -514,8 +514,17 @@ int __cdecl GetPlayPosePosition() {
 }
 
 int __cdecl GetEyeTrackState() {
-	int state = SendMessageW(g_cbSystemEyeTrack,BM_GETCHECK,0,0);
-	if (state == BST_INDETERMINATE) return -1;
-	else if (state == BST_CHECKED) return 1;
-	else return 0;
+	//this apparently also triggers in preview window, where the g_cbSystemEyeTrack doesnt exist.
+	//we will check if we are in the main window here by checking if the character struct exists (i know that thing now thanks to aau)
+	//[AA2Edit.exe+353254]+2C is pointer, where AA2Edit.exe+353254 is NULL if it doesnt exist
+	bool inMainMenu = *(DWORD*)(g_AA2Base + 0x353254) == 0;
+	if(inMainMenu) {
+		return -1; //always default here
+	}
+	else {
+		int state = SendMessageW(g_cbSystemEyeTrack,BM_GETCHECK,0,0);
+		if (state == BST_INDETERMINATE) return -1;
+		else if (state == BST_CHECKED) return 1;
+		else return 0;
+	}
 }

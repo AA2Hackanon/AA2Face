@@ -130,4 +130,5 @@ int __cdecl RandomBodyColorSelect(BodycolorDialogClass* internclass) {
 	RAND_SLOT_SELECTION(SlotFile::PUB_SHAPE,SetCurrentPubHairSlot,g_budPubHair);
 	#undef RAND_SLOT_SELECTION
 	
+	return 0;
 }

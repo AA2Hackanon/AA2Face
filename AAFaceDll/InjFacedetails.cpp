@@ -92,4 +92,5 @@ int __cdecl RandomFaceDetailsSelect(FacedetailsDialogClass* internclass) {
 			internclass->SetGlassesSlot(randSlot); 
 			g_budGlasses.SetChosenSlot(randSlot); 
 	}
+	return 0;
 }
