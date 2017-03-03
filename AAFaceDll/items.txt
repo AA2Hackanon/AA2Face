@@ -50,13 +50,13 @@
 56: Face 5 Short A
 57: Face 5 Short B
 58: Face 5 Earless
-59: --NOT SPECIFIED--
-60: --NOT SPECIFIED--
-61: --NOT SPECIFIED--
-62: --NOT SPECIFIED--
-63: --NOT SPECIFIED--
-64: --NOT SPECIFIED--
-65: --NOT SPECIFIED--
+59: Mitcher
+60: Tuman Garie
+61: Micha Jawkan
+62: Rounded Face 11 Variant A
+63: Rounded Face 13 Variant A
+64: Rounded Face 1 Half Closed Variant
+65: Rounded Face 8
 66: Half-Closed Eyes Face 4 + DDH
 67: Face 11 (Variant A) + Lower Iris + Extended highlight + Thinner eyebrows + DDH + Fixed lips V2
 68: Face 11 + Thinner eyebrows
@@ -73,16 +73,16 @@
 79: Face 13 + Thinner eyebrows + Lashes [Slightly] Angled Downward + Jaw raised
 80: Face 11 (Variant A) + Thinner eyebrows + Jaw raised
 81: Face 13 (Variant A) + Thinner eyebrows + Jaw raised
-82: --NOT SPECIFIED--
+82: Face 13 + Elf Ears
 83: JS3F DDH 1
 84: JS3F DDH 2
 85: JS3F DDH 3
-86: --NOT SPECIFIED--
-87: --NOT SPECIFIED--
-88: --NOT SPECIFIED--
-89: --NOT SPECIFIED--
-90: --NOT SPECIFIED--
-91: --NOT SPECIFIED--
+86: Rounded Face 1
+87: Rounded Face 2
+88: Rounded Face 3
+89: Rounded Face 11
+90: Rounded Face 12
+91: Rounded Face 13
 92: DDH 2 + Lowered Iris
 93: DDH 6 + Lower Ears + Snaggletooth
 94: Face 1 Snaggletooth
@@ -162,27 +162,27 @@
 168: Face 6 [Colorable Eyelashes]
 169: Face 7 [Colorable Eyelashes]
 170: Face 8 [Colorable Eyelashes]
-171: Face 1 Thicker Beauty Marks
-172: Face 2 Thicker Beauty Marks
-173: Face 3 Thicker Beauty Marks
-174: Face 4 Thicker Beauty Marks
-175: Face 5 Thicker Beauty Marks
-176: Face 6 Thicker Beauty Marks
-177: Face 7 Thicker Beauty Marks
-178: Face 1 Thicker Beauty Marks - Double variant
-179: Face 2 Thicker Beauty Marks - Double variant
-180: Face 3 Thicker Beauty Marks - Double variant
-181: Face 4 Thicker Beauty Marks - Double variant
-182: Face 5 Thicker Beauty Marks - Double variant
-183: Face 6 Thicker Beauty Marks - Double variant
-184: Face 7 Thicker Beauty Marks - Double variant
-185: Face 1 Thicker Beauty Marks - Tear variant
-186: Face 2 Thicker Beauty Marks - Tear variant
-187: Face 3 Thicker Beauty Marks - Tear variant
-188: Face 4 Thicker Beauty Marks - Tear variant
-189: Face 5 Thicker Beauty Marks - Tear variant
-190: Face 6 Thicker Beauty Marks - Tear variant
-191: Face 7 Thicker Beauty Marks - Tear variant
+171: Face 1 Thicker Beauty Marks + Raised Jaw
+172: Face 2 Thicker Beauty Marks + Raised Jaw
+173: Face 3 Thicker Beauty Marks + Raised Jaw
+174: Face 4 Thicker Beauty Marks + Raised Jaw
+175: Face 5 Thicker Beauty Marks + Raised Jaw
+176: Face 6 Thicker Beauty Marks + Raised Jaw
+177: Face 7 Thicker Beauty Marks + Raised Jaw
+178: Face 1 Thicker Beauty Marks - Double variant + Raised Jaw
+179: Face 2 Thicker Beauty Marks - Double variant + Raised Jaw
+180: Face 3 Thicker Beauty Marks - Double variant + Raised Jaw
+181: Face 4 Thicker Beauty Marks - Double variant + Raised Jaw
+182: Face 5 Thicker Beauty Marks - Double variant + Raised Jaw
+183: Face 6 Thicker Beauty Marks - Double variant + Raised Jaw
+184: Face 7 Thicker Beauty Marks - Double variant + Raised Jaw
+185: Face 1 Thicker Beauty Marks - Tear variant + Raised Jaw
+186: Face 2 Thicker Beauty Marks - Tear variant + Raised Jaw
+187: Face 3 Thicker Beauty Marks - Tear variant + Raised Jaw
+188: Face 4 Thicker Beauty Marks - Tear variant + Raised Jaw
+189: Face 5 Thicker Beauty Marks - Tear variant + Raised Jaw
+190: Face 6 Thicker Beauty Marks - Tear variant + Raised Jaw
+191: Face 7 Thicker Beauty Marks - Tear variant + Raised Jaw
 192: Face 11 + Thinner eyebrows + DDH
 193: Face 11 + Thinner eyebrows + Lashes [Slightly] Angled Downward + DDH
 194: Face 12 + Thinner eyebrows + DDH
