@@ -7,19 +7,27 @@
 INT_PTR g_HairDialogProcReturnValue = 0;
 HWND g_edHairSelector = NULL;
 HWND g_udHairSelector = NULL;
+HWND g_edHairFlipSelector = NULL;
+HWND g_udHairFlipSelector = NULL;
+PageControl g_pcHairs;
 
 namespace {
 	int loc_lastHairTab = -1;
 	int loc_chosenHairs[4] = { -1,-1,-1,-1 };
 	int loc_chosenFlips[4] = { 0, 0, 0, 0 };
 	bool loc_hairButtonClicked = false;
+	bool loc_hairFlipButtonClicked = false;
 	bool loc_hairEditChanged = false;
+	bool loc_hairFlipEditChanged = false;
 	bool loc_bUdHairChanged = false; //workaround cause ud controls a shit
 	bool loc_bEdIgnoreChange = false;
 	int loc_changedHairDirection = 0;
 	HairDialogClass* loc_hairclass = NULL;
 
-	BYTE loc_hairExists[4][256]; //0 means doesnt exists, 1 means exists, >1 means it exsits and has a flip
+	constexpr int loc_nButtonsPerTab = 135;
+
+	bool loc_hairExists[4][256];
+	BYTE loc_hairFlipSlots[4][256];
 }
 
 void __cdecl InitHairSelector(HWND parent,HINSTANCE hInst) {
@@ -44,6 +52,30 @@ void __cdecl InitHairSelector(HWND parent,HINSTANCE hInst) {
 	SendMessageW(g_udHairSelector,UDM_SETBUDDY,(WPARAM)g_edHairSelector,0);
 	SendMessageW(g_udHairSelector,UDM_SETRANGE,0,MAKELPARAM(255,0));
 	ShowWindow(g_udHairSelector,SW_HIDE);
+
+	//{l:1566 t:643 r:1619 b:663} <-- flip box
+	g_pcHairs = PageControl(POINT{ 380, 570 }, parent, 2);
+
+	x = 270, y = 570, xw = 33, yw = 20;
+	g_edHairFlipSelector = CreateWindowExW(WS_EX_CLIENTEDGE,
+		L"EDIT", L"0", WS_CHILD | WS_VISIBLE | ES_NUMBER | ES_AUTOHSCROLL,
+		x, y, xw, yw, parent, 0, hInst, 0);
+	SendMessage(g_edHairFlipSelector, WM_SETFONT, (WPARAM)g_sysFont, TRUE);
+	if (g_edHairFlipSelector == NULL) {
+		int error = GetLastError();
+		LOGPRIO(Logger::Priority::ERR) << "Could not create hair flip edit window: error code " << error << "\n";
+	}
+	else {
+		LOGPRIO(Logger::Priority::INFO) << "Successfully created hair flip edit with handle " << g_edHairFlipSelector << "\n";
+	}
+
+	g_udHairFlipSelector = CreateWindowExW(0,
+		UPDOWN_CLASSW, NULL, WS_VISIBLE | WS_CHILD | UDS_ALIGNRIGHT | UDS_ARROWKEYS | UDS_SETBUDDYINT,
+		0, 0, 0, 0, parent, 0, hInst, 0);
+	SendMessageW(g_udHairFlipSelector, UDM_SETBUDDY, (WPARAM)g_edHairFlipSelector, 0);
+	SendMessageW(g_udHairFlipSelector, UDM_SETRANGE, 0, MAKELPARAM(255, 0));
+	ShowWindow(g_udHairFlipSelector, SW_HIDE);
+
 }
 
 //similar to GetFaceSelectorIndex (the face one)
@@ -57,13 +89,16 @@ int __cdecl GetHairSelectorIndex(HairDialogClass* internclass, int tab,int guiCh
 	if (loc_hairButtonClicked) {
 		//apply gui choice to our edit box, cause apparently the user clicked on a button,
 		//so he probably wants that to show up
-		loc_hairButtonClicked = false;		
+		loc_hairButtonClicked = false;	
+		guiChosen = guiChosen + g_pcHairs.CurrPage() * loc_nButtonsPerTab;
 		loc_chosenHairs[tab] = guiChosen;
 		loc_bEdIgnoreChange = true;
 		LOGPRIO(Logger::Priority::SPAM) << "hair button selection " << guiChosen << " was chosen in tab " << tab << "\n";
 		SetEditNumber(g_edHairSelector,loc_chosenHairs[tab]);
 		loc_changedHairDirection = 0; //shouldnt happen anyway
-		return -1;
+		//also reset flip to checkbox selection
+		loc_hairFlipButtonClicked = true;
+		return guiChosen;
 	}
 	else if(tab != loc_lastHairTab) {
 		LOGPRIO(Logger::Priority::SPAM) << "hair tab switch from " << loc_lastHairTab << " to " << tab << "; "
@@ -74,6 +109,8 @@ int __cdecl GetHairSelectorIndex(HairDialogClass* internclass, int tab,int guiCh
 		SetEditNumber(g_edHairSelector,loc_chosenHairs[tab]);
 		loc_changedHairDirection = 0; //also shouldnt happen
 									  //disable / enable flip switch
+		g_pcHairs.SetPage(loc_chosenHairs[tab] > 134 ? 1 : 0);
+		RefreshButtonText(internclass);
 		if (loc_chosenHairs[tab] > 134) {
 			if (g_config.IsDisabled(Config::DISABLE_HAIR_SKIPINVALID)) {
 				//always enable all of it
@@ -84,7 +121,7 @@ int __cdecl GetHairSelectorIndex(HairDialogClass* internclass, int tab,int guiCh
 			else {
 				//enable it based on info
 				HWND wnd = internclass->GetFlipButtonWnd();
-				BOOL newstate = loc_hairExists[tab][loc_chosenHairs[tab]] > 1 ? TRUE : FALSE;
+				BOOL newstate = loc_hairFlipSlots[tab][loc_chosenHairs[tab]] >= 1 ? TRUE : FALSE;
 				LRESULT res = EnableWindow(wnd,newstate);
 				EnableWindow(internclass->GetAdjustmentSliderEdit(),TRUE);
 				EnableWindow(internclass->GetAdjustmentSliderWnd(),TRUE);
@@ -111,7 +148,7 @@ int __cdecl GetHairSelectorIndex(HairDialogClass* internclass, int tab,int guiCh
 			else {
 				//enable it based on info
 				HWND wnd = internclass->GetFlipButtonWnd();
-				BOOL newstate = loc_hairExists[tab][loc_chosenHairs[tab]] > 1 ? TRUE : FALSE;
+				BOOL newstate = loc_hairFlipSlots[tab][loc_chosenHairs[tab]] > 1 ? TRUE : FALSE;
 				//make sure flip button is not checked if there is no flipped hair
 				if (newstate == FALSE && ret != oldValue) {
 					SendMessage(wnd,BM_SETCHECK,BST_UNCHECKED,0);
@@ -120,6 +157,62 @@ int __cdecl GetHairSelectorIndex(HairDialogClass* internclass, int tab,int guiCh
 				LRESULT res = EnableWindow(wnd,newstate);
 				EnableWindow(internclass->GetAdjustmentSliderEdit(),TRUE);
 				EnableWindow(internclass->GetAdjustmentSliderWnd(),TRUE);
+			}
+		}
+		return ret;
+	}
+	return -1;
+}
+
+//like GetHairSelectorIndex, but for flips
+int __cdecl GetHairFlipSelectorIndex(HairDialogClass* internclass, int tab, int guiChosen) {
+	if (tab < 0 || tab > 3) {
+		LOGPRIO(Logger::Priority::ERR) << "asked hair flip selector for tab " << tab << ". This shouldnt happen\n";
+		return -1; //shouldnt happen, but lets just go safe here
+	}
+	if (loc_hairFlipButtonClicked) {
+		//apply gui choice to our edit box, cause apparently the user clicked on a button,
+		//so he probably wants that to show up
+		loc_hairFlipButtonClicked = false;
+		LOGPRIO(Logger::Priority::SPAM) << "hair button selection " << guiChosen << " was chosen in tab " << tab << "\n";
+		SetEditNumber(g_edHairFlipSelector, guiChosen);
+		return guiChosen;
+	}
+	else if (tab != loc_lastHairTab) {
+		LOGPRIO(Logger::Priority::SPAM) << "hair tab switch from " << loc_lastHairTab << " to " << tab << "; "
+			"loading hair " << loc_chosenFlips[tab] << "\n";
+		SetEditNumber(g_edHairSelector, loc_chosenFlips[tab]);
+		
+		return loc_chosenFlips[tab];
+	}
+	else if (loc_hairFlipEditChanged) {
+		loc_hairFlipEditChanged = false;
+		int ret = GetEditNumber(g_edHairFlipSelector);
+		int oldValue = loc_chosenFlips[tab];
+		LOGPRIO(Logger::Priority::SPAM) << "hair " << ret << " was selected from edit in tab " << tab << "\n";
+		loc_changedHairDirection = ret - loc_chosenFlips[tab]; //negative if newchoice < oldchoice
+		loc_chosenFlips[tab] = ret;
+		if (ret < 0 || ret > 255) ret = -1;
+		//disable / enable flip switch
+		if (loc_chosenFlips[tab] > 134) {
+			if (g_config.IsDisabled(Config::DISABLE_HAIR_SKIPINVALID)) {
+				//always enable all of it
+				EnableWindow(internclass->GetFlipButtonWnd(), TRUE);
+				EnableWindow(internclass->GetAdjustmentSliderEdit(), TRUE);
+				EnableWindow(internclass->GetAdjustmentSliderWnd(), TRUE);
+			}
+			else {
+				//enable it based on info
+				HWND wnd = internclass->GetFlipButtonWnd();
+				BOOL newstate = loc_hairFlipSlots[tab][loc_chosenFlips[tab]] > 1 ? TRUE : FALSE;
+				//make sure flip button is not checked if there is no flipped hair
+				if (newstate == FALSE && ret != oldValue) {
+					SendMessage(wnd, BM_SETCHECK, BST_UNCHECKED, 0);
+					LOGPRIO(Logger::Priority::SPAM) << "hair flip button was unchecked because the new hair did not support it\n";
+				}
+				LRESULT res = EnableWindow(wnd, newstate);
+				EnableWindow(internclass->GetAdjustmentSliderEdit(), TRUE);
+				EnableWindow(internclass->GetAdjustmentSliderWnd(), TRUE);
 			}
 		}
 		return ret;
@@ -167,6 +260,16 @@ void __cdecl HairDialogAfterInit(HairDialogClass* internclass) {
 	const HWND mainWnd = *g_AA2MainWndHandle;
 	const HWND ourWnd = g_AA2DialogHandles[9];
 	loc_hairclass = internclass;
+}
+
+void RefreshButtonText(HairDialogClass* internclass) {
+	for (int i = 0; i < 135; i++) {
+		HWND btnN = internclass->GetHairSlotButton(i);
+		int newSlot = i + g_pcHairs.CurrPage() * loc_nButtonsPerTab;
+		wchar_t text[64] = { 0 };
+		_itow_s(newSlot, text, 10);
+		SetWindowTextW(btnN, text);
+	}
 }
 
 //if this returns 0, the dialog proc will be executed normally.
@@ -239,7 +342,10 @@ int __cdecl HairDialogNotification(HairDialogClass* internclass,HWND hwndDlg,UIN
 		DWORD ctrlId = LOWORD(wparam);
 		DWORD notification = HIWORD(wparam);
 		HWND wnd = (HWND)lparam;
-		if (notification == BN_CLICKED) {
+		if (g_pcHairs.OnWmCmd(wnd, ctrlId, notification) != PageControl::None) {
+			RefreshButtonText(internclass);
+		}
+		else if (notification == BN_CLICKED) {
 			//make sure the clicked button is not a checkbox, but an actual pushbutton
 			LONG styles = GetWindowLong(wnd,GWL_STYLE);
 			if (!(styles & BS_CHECKBOX)) {
@@ -248,6 +354,9 @@ int __cdecl HairDialogNotification(HairDialogClass* internclass,HWND hwndDlg,UIN
 			}
 			else {
 				loc_hairEditChanged = true; //so that he doesnt think it was the gui choosing another button or random or smthn
+				if (wnd == internclass->GetFlipButtonWnd()) {
+					loc_hairFlipButtonClicked = true;
+				}
 			}
 		}
 		else if (wnd == g_edHairSelector) {
@@ -325,6 +434,43 @@ int __cdecl HairDialogNotification(HairDialogClass* internclass,HWND hwndDlg,UIN
 						loc_hairEditChanged = true;
 						internclass->SetHairChangeFlags(loc_lastHairTab);
 					}
+				}
+			}
+		}
+		else if (wnd == g_edHairFlipSelector) {
+			if (loc_lastHairTab < 0 || loc_lastHairTab > 3) {
+				LOGPRIO(Logger::Priority::ERR) << "hair edit got a message, but tab is invalid with " << loc_lastHairTab << "\n";
+				return FALSE;
+			}
+			if (notification == EN_UPDATE) {
+				int ret = GetEditNumber(g_edHairFlipSelector);
+				LOGPRIO(Logger::Priority::SPAM) << "flip edit got changed to " << ret << "in tab " << loc_lastHairTab << "\n";
+				bool changed = false;
+				bool applyChange = true;
+				if (ret < 0) {
+					//must not be < 0
+					ret = 0;
+					changed = true;
+				}
+				else if (!g_config.IsDisabled(Config::DISABLE_HAIR_SKIPINVALID) 
+						 && ret > loc_hairFlipSlots[loc_lastHairTab][ret]) {
+					ret = loc_hairFlipSlots[loc_lastHairTab][ret];
+					changed = true;
+				}
+				else if (ret > 255) {
+					ret = 255;
+					changed = true;
+				}
+				else if (loc_lastHairTab >= 0 && loc_lastHairTab <= 3) { //make sure we're on a tab 
+
+				}
+				if (changed) {
+					loc_bEdIgnoreChange = true;
+					SetEditNumber(g_edHairFlipSelector, ret);
+				}
+				if (applyChange) {
+					loc_hairFlipEditChanged = true;
+					internclass->SetHairChangeFlags(loc_lastHairTab);
 				}
 			}
 		}
@@ -408,6 +554,22 @@ void RefreshHairSelectorPosition(HairDialogClass* internclass) {
 	MoveWindow(g_edHairSelector,x,y,xw,yw,TRUE);
 	SendMessageW(g_udHairSelector,UDM_SETBUDDY,(WPARAM)g_edHairSelector,0);
 	LOGPRIO(Logger::Priority::SPAM) << "Moved Hair edit to position (" << x << "|" << y << "), size " << xw << "x" << yw << "\n";
+
+	RECT flipRect = GetRelativeRect(internclass->GetFlipButtonWnd());
+
+	POINT newPageLoc;
+	newPageLoc.x = x - 20;
+	newPageLoc.y = flipRect.top;
+	g_pcHairs.MoveTo(newPageLoc);
+
+	x = flipRect.left + 100;
+	y = flipRect.top - 2;
+	xw = flipRect.right - flipRect.left;
+	yw = flipRect.bottom - flipRect.top;
+	MoveWindow(g_edHairFlipSelector, x, y, xw, yw, TRUE);
+	SendMessageW(g_udHairFlipSelector, UDM_SETBUDDY, (WPARAM)g_edHairFlipSelector, 0);
+
+	
 }
 
 //not used anymore, got something better
@@ -438,16 +600,21 @@ void __cdecl InvalidHairNotifier() {
 }
 
 void __cdecl HairInfoNotifier(int tab,TempHairInfos* info) {
+	if (g_config.IsDisabled(Config::DISABLE_HAIR_SKIPINVALID)) {
+		return;
+	}
 	if(tab < 0 || tab > 3) {
 		LOGPRIO(Logger::Priority::WARN) << "Hair Info Notifier was called with invalid tab " << tab << "\n";
 	}
 	for (int i = 0; i < 256; i++) {
 		if(info[i].targetPPMask[0] == '\0') {
 			//if no pp is given, the hair was not found -> does not exist
-			loc_hairExists[tab][i] = 0;
+			loc_hairExists[tab][i] = false;
+			loc_hairFlipSlots[tab][i] = 0;
 		}
 		else {
-			loc_hairExists[tab][i] = 1 + info[i].hasFlip;
+			loc_hairExists[tab][i] = true;
+			loc_hairFlipSlots[tab][i] = info[i].hasFlip;
 		}
 	}
 }

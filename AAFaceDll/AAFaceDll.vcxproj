@@ -21,19 +21,19 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{5FD91228-CBFC-4C7A-8804-252DB75124FD}</ProjectGuid>
     <RootNamespace>AAFaceDll</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -136,11 +136,14 @@
     <ClCompile Include="InjFacedetails.cpp" />
     <ClCompile Include="InjHair.cpp" />
     <ClCompile Include="Hooks.cpp" />
+    <ClCompile Include="InjPersonality.cpp" />
     <ClCompile Include="InjSystem.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="InjGeneral.cpp" />
+    <ClCompile Include="PageControl.cpp" />
     <ClCompile Include="Parser.cpp" />
+    <ClCompile Include="PersonalityDialogClass.cpp" />
     <ClCompile Include="SlotFile.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -154,9 +157,11 @@
     <ClInclude Include="InjGeneral.h" />
     <ClInclude Include="InjFacedetails.h" />
     <ClInclude Include="InjHair.h" />
+    <ClInclude Include="InjPersonality.h" />
     <ClInclude Include="InjSystem.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="Injections.h" />
+    <ClInclude Include="PageControl.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="SlotFile.h" />
   </ItemGroup>
@@ -175,6 +180,7 @@
     <MASM Include="facedetails.asm" />
     <MASM Include="general.asm" />
     <MASM Include="hair.asm" />
+    <MASM Include="personality.asm" />
     <MASM Include="system.asm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

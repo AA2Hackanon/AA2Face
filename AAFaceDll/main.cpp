@@ -31,6 +31,9 @@ BOOL WINAPI DllMain(
 		if(!g_config.IsDisabled(Config::DISABLE_FACEDETAILS)) {
 			HookFacedetails();
 		}
+		if (!g_config.IsDisabled(Config::DISABLE_PERSONALITY)) {
+			HookPersonality();
+		}
 		if(!g_config.IsDisabled(Config::DISABLE_BODY_COLOR)) {
 			HookBodycolor();
 		}

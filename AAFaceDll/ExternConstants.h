@@ -117,6 +117,17 @@ public:
 	void SetCurrentPubHairOpacityGuiValue(BYTE value);
 };
 
+class PersonalityDialogClass : public BaseDialogClass {
+public:
+	HWND GetPersonalityButtonHwnd(BYTE n) const;
+	int GetPersonalityButtonCount() const;
+	int GetPersonalityButtonIndex() const;
+	void SetPersonalityButtonIndex(BYTE slot);
+	int GetPersonalitySlot() const;
+	void SetPersonalitySlot(BYTE slot);
+	BYTE* GetButtonIndexPersonalityMap();
+};
+
 float* GetMinZoom();
 float* GetMaxZoom();
 
@@ -740,3 +751,23 @@ AA2Edit.exe+1ADFA9 - 75 06                 - jne AA2Edit.exe+1ADFB1*/
 //AA2Edit.exe+1B927 - E8 C4B40000           - call AA2Edit.exe+26DF0
 //AA2Edit.exe+346E6 - E8 0527FFFF           - call AA2Edit.exe+26DF0
 
+//checks flip state. note that aau seems to replace sendmessagew by a hook for some reason
+//AA2Editorig.exe + 28111 - FF 15 E043D500 - call dword ptr[AA2Editorig.exe + 2C43E0]{ ->USER32.SendMessageW }
+//AA2Editorig.exe + 28117 - 0FB6 8E A0020000 - movzx ecx, byte ptr[esi + 000002A0]
+//AA2Editorig.exe + 2811E - 88 84 19 A4060000 - mov[ecx + ebx + 000006A4], al
+
+
+//personality tab - reads personality button index in call;
+//then maps them to a personality slot using the array in edx+eax*4.
+//ebx is dialog class pointer
+//AA2Edit.exe+2D450 - 8B 7B 4C              - mov edi,[ebx+4C]
+//AA2Edit.exe+2D453 - E8 48A0FEFF           - call AA2Edit.exe+174A0
+//AA2Edit.exe+2D458 - 8B 93 9C010000        - mov edx,[ebx+0000019C]
+//AA2Edit.exe+2D45E - 8A 04 82              - mov al,[edx+eax*4]
+//AA2Edit.exe+2D461 - 5F                    - pop edi
+//AA2Edit.exe+2D462 - 88 86 45040000        - mov [esi+00000445],al
+
+
+//reads from personality map; the resulting slot (esi) will be written into button as text (somehow)
+//AA2Edit.exe+2E146 - 8B 80 9C010000        - mov eax,[eax+0000019C]
+//AA2Edit.exe+2E14C - 0FB6 34 18            - movzx esi,byte ptr [eax+ebx]

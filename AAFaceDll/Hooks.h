@@ -31,6 +31,7 @@ void HookBodycolor();
 void HookFace();
 void HookHair();
 void HookFacedetails();
+void HookPersonality();
 
 void HookLimits();
 

@@ -5,6 +5,7 @@ EXTERN g_AA2Base:DWORD
 
 EXTERN g_HairDialogProcReturnValue:DWORD
 EXTERN GetHairSelectorIndex:PROC
+EXTERN GetHairFlipSelectorIndex:PROC
 EXTERN InitHairTab:PROC
 EXTERN InitHairSelector:PROC
 EXTERN HairDialogNotification:PROC
@@ -15,6 +16,7 @@ EXTERN HairInfoNotifier:PROC
 EXTERN RandomHairSelect:PROC
 
 EXTERNDEF hairdialog_refresh_hair_inject:PROC
+EXTERNDEF hairdialog_refresh_hairflip_inject:PROC
 EXTERNDEF hairdialog_init_hair_inject:PROC
 EXTERNDEF hairdialog_constructor_inject:PROC
 EXTERNDEF hairdialog_hooked_dialog_proc:PROC
@@ -32,7 +34,7 @@ EXTERNDEF hairdialog_randomhair_hook:PROC
 
 ;constructor of hair dialog
 ;AA2Edit.exe+27EEC - FF 15 54435B00        - call dword ptr[AA2Edit.exe+2C4354]
-hairdialog_constructor_inject:
+hairdialog_constructor_inject: 
 	pop [returnAddress]
 	mov dword ptr [hInstTmp], ecx
 	mov eax, [g_AA2Base]
@@ -93,6 +95,33 @@ hairdialog_refresh_hair_inject:
 
 	push [returnAddress] ; dont forget this one
 	ret
+
+;setting hair flip state, comes directly after the thing above
+;AA2Editorig.exe + 28111 - FF 15 E043D500 - call dword ptr[AA2Editorig.exe + 2C43E0]{ ->USER32.SendMessageW }
+;AA2Editorig.exe + 28117 - 0FB6 8E A0020000 - movzx ecx, byte ptr[esi + 000002A0]
+;AA2Editorig.exe + 2811E - 88 84 19 A4060000 - mov[ecx + ebx + 000006A4], al
+hairdialog_refresh_hairflip_inject:
+	pop [returnAddress]
+	mov eax, [g_AA2Base]
+	add eax, 2C43E0h
+	call dword ptr [eax]
+	push eax ; save of return value
+
+	push eax ; same parameter as the hair selector index
+	mov eax, [esi+000002A0h]
+	push eax ; and the tab
+	push esi ; the hair dialog class
+	call GetHairFlipSelectorIndex 
+	add esp, 0Ch
+	cmp eax, -1
+	jne skipHairFlipSelection
+	mov eax, [esp]
+skipHairFlipSelection:
+	add esp, 4
+
+	push [returnAddress]
+	ret 
+
 
 ;start of virtual handler of hair-dialog (REMEMBER TO REPLICATE THE FIRST 2 INSTRUCTIONS)
 ;AA2Edit.exe+28650 - 8B 44 24 08           - mov eax,[esp+08]

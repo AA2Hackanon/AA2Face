@@ -99,6 +99,15 @@
     <ClCompile Include="SlotFile.cpp">
       <Filter>Source Files\Utils</Filter>
     </ClCompile>
+    <ClCompile Include="PageControl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PersonalityDialogClass.cpp">
+      <Filter>Source Files\ExternClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="InjPersonality.cpp">
+      <Filter>Source Files\Injections</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExternConstants.h">
@@ -146,6 +155,12 @@
     <ClInclude Include="SlotFile.h">
       <Filter>Header Files\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="PageControl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InjPersonality.h">
+      <Filter>Header Files\Injections</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="config.txt">
@@ -181,6 +196,9 @@
       <Filter>Source Files\asm</Filter>
     </MASM>
     <MASM Include="system.asm">
+      <Filter>Source Files\asm</Filter>
+    </MASM>
+    <MASM Include="personality.asm">
       <Filter>Source Files\asm</Filter>
     </MASM>
   </ItemGroup>

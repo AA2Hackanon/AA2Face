@@ -139,6 +139,7 @@ void HookFace() {
 
 extern "C" void hairdialog_constructor_inject();
 extern "C" void hairdialog_refresh_hair_inject();
+extern "C" void hairdialog_refresh_hairflip_inject();
 extern "C" void hairdialog_init_hair_inject();
 extern "C" void hairdialog_hooked_dialog_proc();
 extern "C" void hairdialog_hooked_dialog_proc_afterinit();
@@ -169,6 +170,12 @@ void HookHair() {
 	//AA2Edit.exe+280E6 - 88 84 1A 9C060000     - mov[edx+ebx+0000069C],al
 	ret &= Hook(AA2Base + 0x280DA, 5, { { Call, (DWORD)hairdialog_refresh_hair_inject } });
 
+	//4.5: the call to the function (i.e the call to sendmessagew) that checks flip state
+	///AA2Editorig.exe + 28111 - FF 15 E043D500 - call dword ptr[AA2Editorig.exe + 2C43E0]{ ->USER32.SendMessageW }
+	//AA2Editorig.exe + 28117 - 0FB6 8E A0020000 - movzx ecx, byte ptr[esi + 000002A0]
+	//AA2Editorig.exe + 2811E - 88 84 19 A4060000 - mov[ecx + ebx + 000006A4], al
+	ret &= Hook(AA2Base + 0x28111, 6, { { Call, (DWORD)hairdialog_refresh_hairflip_inject } , { Nop } });
+
 	//5: the dialog boxes message handler (remember to repilicate those instructions)
 	//AA2Edit.exe+28650 - 8B 44 24 08           - mov eax,[esp+08]
 	//AA2Edit.exe+28654 - 56                    - push esi
@@ -192,12 +199,11 @@ void HookHair() {
 	//AA2Edit.exe+28ECA - E8 71030F00           - call AA2Edit.exe+119240
 	//AA2Edit.exe+29180 - E8 BB000F00           - call AA2Edit.exe+119240
 	//AA2Edit.exe+294BB - E8 80FD0E00           - call AA2Edit.exe+119240
-	if (!g_config.IsDisabled(Config::DISABLE_HAIR_SKIPINVALID)) {
-		ret &= Hook(AA2Base + 0x28CF0,5,{ { Call, (DWORD)hairdialog_hooked_loadhairinfo } });
-		ret &= Hook(AA2Base + 0x28ECA,5,{ { Call, (DWORD)hairdialog_hooked_loadhairinfo } });
-		ret &= Hook(AA2Base + 0x29180,5,{ { Call, (DWORD)hairdialog_hooked_loadhairinfo } });
-		ret &= Hook(AA2Base + 0x294BB,5,{ { Call, (DWORD)hairdialog_hooked_loadhairinfo } });
-	}
+	ret &= Hook(AA2Base + 0x28CF0,5,{ { Call, (DWORD)hairdialog_hooked_loadhairinfo } });
+	ret &= Hook(AA2Base + 0x28ECA,5,{ { Call, (DWORD)hairdialog_hooked_loadhairinfo } });
+	ret &= Hook(AA2Base + 0x29180,5,{ { Call, (DWORD)hairdialog_hooked_loadhairinfo } });
+	ret &= Hook(AA2Base + 0x294BB,5,{ { Call, (DWORD)hairdialog_hooked_loadhairinfo } });
+	
 
 	//random hair call from all random button and single random button, respectively; esi thiscall
 	//AA2Edit.exe+1B932 - E8 F9C70000           - call AA2Edit.exe+28130
@@ -356,6 +362,59 @@ void HookBodycolor() {
 	if(!ret) {
 		LOGPRIO(Logger::Priority::CRIT_ERR) << "At least one modification failed in Bodycolor hooks!\n";
 	}
+}
+
+extern "C" void personality_random_hook();
+extern "C" void personality_init_personality_inject();
+extern "C" void personality_refresh_personality_inject();
+extern "C" void personality_hooked_dialog_proc_afterinit();
+extern "C" void personality_hooked_dialog_proc();
+extern "C" void personality_constructor_inject();
+
+void HookPersonality() {
+	using namespace Opcodes;
+	BYTE* AA2Base = (BYTE*)g_AA2Base;
+	bool ret = true;
+
+	//0: creation of hair-dialog to create our edit field
+	//AA2Edit.exe+2D275 - FF 15 54432801        - call dword ptr [AA2Edit.exe+2C4354] { ->USER32.CreateDialogParamW }
+	ret &= Hook(AA2Base + 0x2D275, 6, { {Call, (DWORD)personality_constructor_inject }, { Nop } });
+
+	//1: Dialog Proc
+	//AA2Edit.exe + 2DC40 - 8B 44 24 08 - mov eax, [esp + 08]
+	//AA2Edit.exe + 2DC44 - 83 E8 10 - sub eax, 10 { 16 }
+	ret &= Hook(AA2Base + 0x2DC40, 7, { {Call, (DWORD)personality_hooked_dialog_proc }, {Nop, Nop} });
+
+	//2: after WM_INITDIALOG
+	//this is esi, no push for some reason?
+	//AA2Edit.exe + 2DC66 - E8 35F6FFFF - call AA2Edit.exe + 2D2A0
+	//AA2Edit.exe + 2DC6B - 33 C0 - xor eax, eax
+	ret &= Hook(AA2Base + 0x2DC66, 5, { {Call, (DWORD)personality_hooked_dialog_proc_afterinit } });
+
+	//3: function that selects current personality
+	//AA2Edit.exe+2D450 - 8B 7B 4C              - mov edi,[ebx+4C]
+	//AA2Edit.exe+2D453 - E8 48A0FEFF           - call AA2Edit.exe+174A0
+	//AA2Edit.exe+2D458 - 8B 93 9C010000        - mov edx,[ebx+0000019C]
+	//AA2Edit.exe+2D45E - 8A 04 82              - mov al,[edx+eax*4]
+	//AA2Edit.exe+2D461 - 5F                    - pop edi
+	//AA2Edit.exe+2D462 - 88 86 45040000        - mov [esi+00000445],al
+	ret &= Hook(AA2Base + 0x2D453, 5, { {Call, (DWORD)personality_refresh_personality_inject } });
+
+	//init injects?
+	//AA2Edit.exe+1C475 - 8B B5 D8000000        - mov esi,[ebp+000000D8]
+	//AA2Edit.exe+1C47B - E8 00110100           - call AA2Edit.exe+2D580
+	//AA2Edit.exe+1C1E8 - 8B B5 D8000000        - mov esi,[ebp+000000D8]
+	//AA2Edit.exe+1C1EE - E8 8D130100           - call AA2Edit.exe+2D580
+	ret &= Hook(AA2Base + 0x1C47B, 5, { {Call, (DWORD)personality_init_personality_inject } });
+	ret &= Hook(AA2Base + 0x1C1EE, 5, { {Call, (DWORD)personality_init_personality_inject } });
+
+	//random hooks?
+	//AA2Edit.exe+3475E - 8B BB D8000000        - mov edi,[ebx+000000D8]
+	//AA2Edit.exe+34764 - E8 078DFFFF           - call AA2Edit.exe+2D470
+	//AA2Edit.exe+1B94D - 8B BD D8000000        - mov edi,[ebp+000000D8]
+	//AA2Edit.exe+1B953 - E8 181B0100           - call AA2Edit.exe+2D470
+	ret &= Hook(AA2Base + 0x34764, 5, { {Call, (DWORD)personality_random_hook } });
+	ret &= Hook(AA2Base + 0x1B953, 5, { {Call, (DWORD)personality_random_hook } });
 }
 
 extern "C" void systemdialog_hooked_dialog_proc_afterinit();
