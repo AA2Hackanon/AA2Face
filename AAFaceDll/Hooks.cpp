@@ -400,6 +400,12 @@ void HookPersonality() {
 	//AA2Edit.exe+2D462 - 88 86 45040000        - mov [esi+00000445],al
 	ret &= Hook(AA2Base + 0x2D453, 5, { {Call, (DWORD)personality_refresh_personality_inject } });
 
+	//4: we change the size of the personality map so it holds all 256 slots and not just 128
+	//AA2Edit.exe + 2E36A - 68 80000000 - push 00000080 { 128 }
+	//AA2Edit.exe + 2E36F - 8B CD - mov ecx, ebp
+	//AA2Edit.exe + 2E371 - E8 AA3C0700 - call AA2Edit.exe + A2020
+	ret &= Hook(AA2Base + 0x2E36A, 3, { { 0x68, 0x00, 0x01 } });
+
 	//init injects?
 	//AA2Edit.exe+1C475 - 8B B5 D8000000        - mov esi,[ebp+000000D8]
 	//AA2Edit.exe+1C47B - E8 00110100           - call AA2Edit.exe+2D580

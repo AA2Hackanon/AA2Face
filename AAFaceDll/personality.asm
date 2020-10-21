@@ -118,6 +118,7 @@ personality_random_hook:
 	ret
 
 
+;esi holds dialog class ptr
 ;AA2Edit.exe+2D275 - FF 15 54432801        - call dword ptr [AA2Edit.exe+2C4354] { ->USER32.CreateDialogParamW }
 personality_constructor_inject:
 	pop [returnAddress]

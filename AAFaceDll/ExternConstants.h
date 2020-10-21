@@ -125,7 +125,60 @@ public:
 	void SetPersonalityButtonIndex(BYTE slot);
 	int GetPersonalitySlot() const;
 	void SetPersonalitySlot(BYTE slot);
-	BYTE* GetButtonIndexPersonalityMap();
+	DWORD* GetButtonIndexPersonalityMap();
+
+	#pragma pack(push, 1)
+	struct PersonalityListNode {
+		PersonalityListNode* rhs; //followed and noted on >=
+		PersonalityListNode* parent; //no idea why the parent of the end is the beginning
+		PersonalityListNode* lhs; //followed on <
+		DWORD slot;
+		const wchar_t* aNumber;
+		const wchar_t* label;
+		const wchar_t* col3;
+		const wchar_t* col4;
+		const wchar_t* col5;
+		const wchar_t* col15; //not sure why these are out of order
+		const wchar_t* col16;
+		const wchar_t* col6;
+		const wchar_t* col7;
+		const wchar_t* col8;
+		const wchar_t* col9;
+		const wchar_t* col10;
+		const wchar_t* col11;
+		const wchar_t* col12;
+		const wchar_t* col13;
+		const wchar_t* col14;
+		BYTE unknown[0x5];
+		bool isEnd;
+	};
+	static_assert(sizeof(PersonalityListNode) == 0x56, "size missmatch");
+	
+	struct IllusionMapType {
+		DWORD unknown;
+		PersonalityListNode* endNode;
+	private:
+		template<typename T>
+		void InOrderTraverseRecursive(PersonalityListNode* node, T& callback) {
+			if (!node->isEnd) {
+				if (node->lhs && node->lhs != endNode)
+					InOrderTraverseRecursive(node->lhs, callback);
+				if (node->rhs && node->rhs != endNode)
+					InOrderTraverseRecursive(node->rhs, callback);
+				callback(node);
+			}
+		}
+	public:
+		template<typename T>
+		void InOrderTraverse(T& callback) {
+			PersonalityListNode* beginningNode = endNode->parent; //not sure why
+			if (beginningNode->isEnd) return;
+			InOrderTraverseRecursive(beginningNode, callback);
+		}
+	};
+	IllusionMapType* GetPersonalityListFile();
+
+	#pragma pack(pop)
 };
 
 float* GetMinZoom();
@@ -767,7 +820,52 @@ AA2Edit.exe+1ADFA9 - 75 06                 - jne AA2Edit.exe+1ADFB1*/
 //AA2Edit.exe+2D461 - 5F                    - pop edi
 //AA2Edit.exe+2D462 - 88 86 45040000        - mov [esi+00000445],al
 
+//this code mallocs the vector thats used as the map above (edx).
+//the parameter is the amount of DWORDS, so 128 DWORDS = 512 bytes
+//AA2Edit.exe + 2E36A - 68 80000000 - push 00000080 { 128 }
+//AA2Edit.exe + 2E36F - 8B CD - mov ecx, ebp
+//AA2Edit.exe + 2E371 - E8 AA3C0700 - call AA2Edit.exe + A2020
 
 //reads from personality map; the resulting slot (esi) will be written into button as text (somehow)
 //AA2Edit.exe+2E146 - 8B 80 9C010000        - mov eax,[eax+0000019C]
 //AA2Edit.exe+2E14C - 0FB6 34 18            - movzx esi,byte ptr [eax+ebx]
+
+//takes pointer to overarching struct in edi, and a pointer to an int holding the slot(?) on stack;
+//returns pointer into a struct that is an array of pointer, each one pointing to a different part of the list file
+//AA2Edit.exe + 2E259 - 8D 44 24 28 - lea eax, [esp + 28]
+//AA2Edit.exe + 2E25D - 50 - push eax
+//AA2Edit.exe + 2E25E - 89 74 24 2C - mov[esp + 2C], esi
+//AA2Edit.exe + 2E262 - E8 B9A40F00 - call AA2Edit.exe + 128720
+//AA2Edit.exe + 2E267 - 8B 50 04 - mov edx, [eax + 04]
+//the function works like this:
+//edi is some sort of map
+//[edi+4] is the node representing the end of the map
+//[[edi+4]+4] is the beginning node
+//[node+C] is the slot this node represents
+//[node+0] is followed if the nodes slot is >= search slot
+//[node+8] is followed if the nodes slot is < search slot
+//nodes are followed until a node is reached where bool in [node+55] is true
+//that last node found following [node+0] (initialised with end node) is used for the following checks:
+//if this node is equal to the end node ([edi+4]), search failed
+//if this nodes slot is < search slot, the search failed
+//else the search succeeded. node+10 is the struct with the info that is returned.
+
+//the code below gets the edi from above.
+//in it, edx is the PersonalityDialogClass instance,
+//and the ecx at the end is edi-1C (so that ecx+1C is edi from above).
+//AA2Edit.exe + 2DDE0 - 8B 42 44 - mov eax, [edx + 44]
+//AA2Edit.exe + 2DDE3 - 8B 48 24 - mov ecx, [eax + 24]
+//AA2Edit.exe + 2DDE6 - 83 39 00 - cmp dword ptr[ecx], 00 { 0 }
+//AA2Edit.exe + 2DDE9 - 89 54 24 14 - mov[esp + 14], edx
+//AA2Edit.exe + 2DDED - 75 05 - jne AA2Edit.exe + 2DDF4
+//AA2Edit.exe + 2DDEF - 8B 40 30 - mov eax, [eax + 30]
+//AA2Edit.exe + 2DDF2 - EB 03 - jmp AA2Edit.exe + 2DDF7
+//AA2Edit.exe + 2DDF4 - 8B 40 2C - mov eax, [eax + 2C]
+//AA2Edit.exe + 2DDF7 - 85 C0 - test eax, eax
+//AA2Edit.exe + 2DDF9 - 75 07 - jne AA2Edit.exe + 2DE02
+//AA2Edit.exe + 2DDFB - 32 C0 - xor al, al
+//AA2Edit.exe + 2DDFD - E9 33040000 - jmp AA2Edit.exe + 2E235
+//AA2Edit.exe + 2DE02 - 8B 48 28 - mov ecx, [eax + 28]
+//AA2Edit.exe + 2DE05 - 89 4C 24 40 - mov[esp + 40], ecx
+
+
