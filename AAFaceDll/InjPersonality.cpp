@@ -2,7 +2,9 @@
 
 #include <vector>
 #include <algorithm>
+#include <random>
 
+#include "Config.h"
 #include "GenUtils.h"
 #include "Logger.h"
 
@@ -87,9 +89,10 @@ void __cdecl InitPersonalityTab(PersonalityDialogClass* internclass, bool before
 	}
 }
 
-void __cdecl InitPersonalitySelector(HWND parent, HINSTANCE hInst)
+void __cdecl InitPersonalitySelector(PersonalityDialogClass* internclass, HWND parent, HINSTANCE hInst)
 {
-	g_pcPersonality = PageControl(POINT{ 380, 570 }, parent, 2);
+
+	g_pcPersonality = PageControl(POINT{ 380, 570 }, parent, (loc_personalityNames.size() / internclass->GetPersonalityButtonCount()) + 1);
 }
 
 void __cdecl PersonalityDialogNotification(PersonalityDialogClass* internclass, HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam) {
@@ -137,6 +140,21 @@ void __cdecl PersonalityAfterDialogInit(PersonalityDialogClass* internclass, HWN
 	listFile->InOrderTraverse([](PersonalityDialogClass::PersonalityListNode* node) {
 		loc_personalityNames.push_back({ node->slot, node->label, node });
 	});
+	//filter personalities from other gender.
+	//for that we need to find out our gender first tho.
+	//cheap trick: look at personality of current first button
+	DWORD firstPerso = internclass->GetButtonIndexPersonalityMap()[0];
+	auto it = std::find_if(loc_personalityNames.begin(), loc_personalityNames.end(), [=](const auto& elem) { return elem.slot == firstPerso; });
+	if (it == loc_personalityNames.end()) {
+		LOGPRIO(Logger::Priority::WARN) << "Failed to determine gender because personality in slot " << firstPerso << " was not found.\r\n";
+	}
+	else if(!g_config.IsDisabled(Config::DISABLE_GENDERLOCKED_PERSONALITY)) {
+		unsigned long charGender = wcstoul(it->node->col4, NULL, 0);
+		loc_personalityNames.erase(std::remove_if(loc_personalityNames.begin() , loc_personalityNames.end()
+												 , [=](const auto& elem) -> bool 
+												   { return charGender != wcstoul(elem.node->col4, NULL, 0); })
+								, loc_personalityNames.end());
+	}
 
 	std::sort(loc_personalityNames.begin(), loc_personalityNames.end(), 
 		[](const auto& lhs, const auto& rhs) -> bool { 
@@ -158,7 +176,17 @@ int __cdecl GetPersonalitySelectorIndex(PersonalityDialogClass* internclass, int
 }
 
 int __cdecl RandomPersonalitySelect(PersonalityDialogClass* internclass) {
-	return -1;
+	//i forgot what the return value even does. i dont think it does anything.
+	//why is it even there
+	if (loc_personalityNames.size() == 0) return -1;
+	int buttonN = rand() % loc_personalityNames.size();
+	DWORD slot = loc_personalityNames[buttonN].slot;
+	int newPage = buttonN / internclass->GetPersonalityButtonCount();
+	g_pcPersonality.SetPage(newPage);
+	RefreshPersonalityButtonText(internclass);
+	RefreshPersonalityFakeButton(internclass, slot);
+	internclass->SetPersonalitySlot(slot);
+	return 1;
 }
 
 void RefreshPersonalitySelectorPosition(PersonalityDialogClass* internclass) {

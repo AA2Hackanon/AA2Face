@@ -328,6 +328,12 @@ bool Config::InterpretDisable(char * str)
 		else if(strcmp(token, "RANDOM_SLOT_MOD") == 0) {
 			disableFlags |= DISABLE_RANDOM_SLOT_MOD;
 		}
+		else if (strcmp(token, "PERSONALITY") == 0) {
+			disableFlags |= DISABLE_PERSONALITY;
+		}
+		else if (strcmp(token, "GENDERLOCKED_PERSONALITY") == 0) {
+			disableFlags |= DISABLE_GENDERLOCKED_PERSONALITY;
+		}
 		else {
 			LOGPRIO(Logger::Priority::WARN) << "Unknown Hook " << token << " disabled in config\n";
 		}

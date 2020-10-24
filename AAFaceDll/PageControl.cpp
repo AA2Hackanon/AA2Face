@@ -49,6 +49,8 @@ void PageControl::MoveTo(POINT newLoc)
 	MoveWindow(m_btnPrev, newLoc.x, newLoc.y, 17, 17, TRUE);
 	MoveWindow(m_stPageIndicator, newLoc.x + 20, newLoc.y, 50, 20, TRUE);
 	MoveWindow(m_btnNext, newLoc.x + 40, newLoc.y, 17, 17, TRUE);
+	EnableWindow(m_btnNext, m_currPage + 1 < m_nPages);
+	EnableWindow(m_btnPrev, m_currPage > 0);
 }
 
 void PageControl::SetPage(int pageNr)
@@ -61,7 +63,7 @@ void PageControl::SetPage(int pageNr)
 	UpdatePageText();
 
 	EnableWindow(m_btnNext, m_currPage + 1 < m_nPages);
-	EnableWindow(m_btnPrev, m_currPage >= 0);
+	EnableWindow(m_btnPrev, m_currPage > 0);
 }
 
 bool PageControl::NextPage()
@@ -100,4 +102,16 @@ void PageControl::UpdatePageText() {
 	wchar_t text[256];
 	_swprintf_c(text, 256, L"%d/%d", m_currPage + 1, m_nPages);
 	SetWindowTextW(m_stPageIndicator, text);
+}
+
+void PageControl::SetPageCount(int newNPages) {
+	m_nPages = newNPages;	
+	if (m_currPage >= newNPages) {
+		SetPage(newNPages - 1);
+	}
+	else {
+		UpdatePageText();
+		EnableWindow(m_btnNext, m_currPage + 1 < m_nPages);
+		EnableWindow(m_btnPrev, m_currPage > 0);
+	}
 }

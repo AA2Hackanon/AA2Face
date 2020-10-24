@@ -130,8 +130,9 @@ personality_constructor_inject:
 	push eax
 	push [hInstTmp]
 	push eax
+	push esi
 	call InitPersonalitySelector
-	add esp, 8
+	add esp, 0Ch
 	pop eax
 	push [returnAddress]
 	ret

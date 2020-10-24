@@ -23,6 +23,7 @@ public:
 	inline int CurrPage() { return m_currPage; }
 	void SetPage(int pageNr);
 	void MoveTo(POINT newLoc);
+	void SetPageCount(int newNPages);
 private:
 	int m_currPage;
 	int m_nPages;
